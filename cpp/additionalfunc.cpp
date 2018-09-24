@@ -1,16 +1,27 @@
+#ifndef ADDITIONALFUNC_H
+#define ADDITIONALFUNC_H
+
 #include <iostream>
 #include <fstream>
-#include <sstream>
 #include <string>
-using namespace std;
+//#include <cstring>
+#include <sstream>
+#include <vector>
+//#include <list>
+#include <set>
+//#include <map>
+//#include <queue>
+//#include <deque>
+//#include <algorithm>
+#include "additionalfunc.h"
 
-#include <stdio.h>
-#include <stdlib.h>
+
+using namespace std;
 
 
 
 // initializing the array of prime numbers to be used in generation of unique smiles;
-static int prime(int i)
+int prime(int i)
 {
 	int primenumbers[100]={2,3,5,7,11,13,17,19,23,29,31,37,41,43,47,53,59,61,67,71,
 				73,79,83,89,97,101,103,107,109,113,127,131,137,139,149,151,157,163,167,
@@ -22,7 +33,7 @@ static int prime(int i)
 	return primenumbers[i];
 }
 
-static int factorial (int a)
+int factorial (int a)
 {
   if (a > 1)
    return (a * factorial (a-1));
@@ -30,12 +41,12 @@ static int factorial (int a)
    return (1);
 }
 
-static int moleculesize(string a)
+int moleculesize(string a)
 {
 	int count=0;
 	bool InsideCurlyBrackets = false;
 	bool InsideSquareBrackets = false;
-	for (unsigned int i=0;i<a.length();i++)
+	for (unsigned int i=0; i<a.length(); i++)
 	{
 		string c;
 		c=a[i];
@@ -71,7 +82,7 @@ static int moleculesize(string a)
 	return count;
 }
 
-static int patternsize(string a)
+int patternsize(string a)
 {
 	int count =0;
 	int flag=0;
@@ -140,7 +151,7 @@ static int patternsize(string a)
 }
 
 
-static void throwsmileserror(string S)
+void throwsmileserror(string S)
 {
 	if (S.compare(0,1,")")==0)throw pair<string,int>(S,0);
 	int opencount=0;
@@ -216,7 +227,7 @@ static void throwsmileserror(string S)
 	if (InsideSquareBraces) throw pair<string,int>(S,6);
 }
 
-static void catchsmileserror(pair<string,int> error)
+void catchsmileserror(pair<string,int> error)
 {
 	if (error.second==0)cout<<"SMILES string "<<error.first<<" cannot start with a ')'"<<endl;
 	if (error.second==1)cout<<"SMILES "<<error.first<<" cannot have nothing between braces'()'"<<endl;
@@ -231,7 +242,7 @@ static void catchsmileserror(pair<string,int> error)
 
 
 
-static bool TokenizeIntoWords(string& S, string::size_type position, vector<string>& tokens)
+bool TokenizeIntoWords(string& S, string::size_type position, vector<string>& tokens)
 {
 	
 	
@@ -257,7 +268,7 @@ static bool TokenizeIntoWords(string& S, string::size_type position, vector<stri
 }
 
 
-static double StringToDouble(string S)
+double StringToDouble(string S)
 {
 	stringstream ss(S);
 	double DoubleValue;
@@ -272,7 +283,7 @@ static double StringToDouble(string S)
 	return DoubleValue;
 }
 
-static int StringToInt(string S)
+int StringToInt(string S)
 {
 	stringstream ss(S);
 	int IntValue;
@@ -286,7 +297,7 @@ static int StringToInt(string S)
 
 	return IntValue;
 }
-static string DoubleToString (double d)
+string DoubleToString (double d)
 {
 	stringstream ss;
 	ss << d;
@@ -294,15 +305,14 @@ static string DoubleToString (double d)
 	return str;
 }
 
-static string IntToStr (int i)
+string IntToStr (int i)
 {
 	stringstream ss;
 	ss << i;
-	string str = ss.str();
-	return str;
+	return  ss.str();
 }
 
-static void WriteInfoFile(string str, ofstream& file)
+void WriteInfoFile(string str, ofstream& file)
 {
 	file<<str;
 }
@@ -319,3 +329,5 @@ static void WriteInfoFile(string str, ofstream& file)
 	TempRange.push_back(1500.);
 	return TempRange;
 }*/
+
+#endif
