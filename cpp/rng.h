@@ -186,14 +186,14 @@ class rxn_net_gen
 
 		//---------------------------------------------------------
 
-		//friend class Pathways;	
-		//friend class Mechanisms;
-		//friend class MoleculeQuery;
-		//friend class ReactionQuery;
-		//friend class KineticModel;
-		//friend class KineticsInfo;
-		//friend class CHEMKinFiles;
-		//friend class GAMSFiles;
+		friend class Pathways;	
+		friend class Mechanisms;
+		friend class MoleculeQuery;
+		friend class ReactionQuery;
+		friend class KineticModel;
+		friend class KineticsInfo;
+		friend class CHEMKinFiles;
+		friend class GAMSFiles;
 
 };
 
