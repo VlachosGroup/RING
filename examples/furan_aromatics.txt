@@ -1,0 +1,493 @@
+input reactant "c1ccco1"
+input reactant "[H+]"
+input reactant "[{HTA}H]"
+
+group CdoubleC (carb1,carb2){
+	C labeled carb1
+	C labeled carb2 double bond to carb1}
+	
+group cc (c1,c2){
+	c labeled c1
+	c labeled c2 aromatic bond to c1}
+	
+define characteristic HydrocarbonAromatic on Molecule{
+	Molecule is aromatic
+	fragment f{
+		o labeled o1}
+	! Molecule is oxygenate && ! Molecule contains >=1 of f
+}
+
+define characteristic heterocyclic on Molecule{
+	Molecule is cyclic
+	fragment a {
+		ringatom & labeled a1}
+	Molecule contains >=1 of a
+}
+
+define characteristic SixAtomheterocyclic on Molecule{
+	Molecule is cyclic
+	fragment a {
+		ringatom & labeled a1{in ring of size 6}
+		}
+	Molecule contains >=1 of a
+}
+
+define composite atom HTA //Hydrogen Transfer Agent
+	
+global constraints on  Molecule
+{
+	//declaration of a fragment named 'a'
+	fragment a
+	{
+		C+ labeled 1
+		C labeled 2 double bond to 1
+	}
+	
+	! Molecule contains a
+	(Molecule.size <= 8 && ! Molecule is cyclic) ||(Molecule.size <=10 && Molecule is cyclic)
+	//cannot have a C=C=C or a C=C=O
+	fragment b
+	{
+		C labeled c1
+		C labeled c2 double bond to c1
+		X labeled x1 double bond to c2 // note X represents a heavy atom
+	}
+	(! Molecule contains b) ||(Molecule.size <4)
+	
+	(! Molecule contains >=3 of group CdoubleC) || (Molecule is cyclic)
+	//(! Molecule is heterocyclic && ! Molecule is heteroaromatic) ||(Molecule.maxringsize <6)
+	! Molecule is SixAtomheterocyclic
+	fragment f1{
+		ringatom O labeled o1}
+	fragment f2{
+		ringatom o labeled o2}
+	! (Molecule contains >=2 of f1 || Molecule contains >=2 of f2)
+	(Molecule contains <=1 of f1 && Molecule contains <=1 of f2)
+	
+
+}
+
+rule aromaticProt{
+neutral aromatic reactant r1{
+	aromatic C labeled c1 {! connected to >=1 any atom with double bond}
+	aromatic C labeled c2 aromatic bond to c1 {! connected to >=1 any atom with double bond}
+}
+positive reactant r2{
+	H+ labeled h1}
+form bond (c1,h1)
+modify bond (c1,c2,single)
+modify atomtype (c1,C)
+modify atomtype (c2,C+)
+modify atomtype (h1,H)
+}
+
+
+/*
+rule aromaticProt1{
+neutral aromatic reactant r1{
+	aromatic C labeled c1 { connected to o with aromatic bond, ! connected to >=1 any atom with double bond}
+	aromatic C labeled c2 aromatic bond to c1 {! connected to >=1 any atom with double bond}
+}
+positive reactant r2{
+	H+ labeled h1}
+form bond (c1,h1)
+modify bond (c1,c2,single)
+modify atomtype (c1,C)
+modify atomtype (c2,C+)
+modify atomtype (h1,H)
+}
+
+
+
+rule aromaticProt2{
+neutral aromatic reactant r1{
+	aromatic C labeled c1 {connected to o with aromatic bond, ! connected to >=1 any atom with double bond}
+	aromatic C labeled c2 aromatic bond to c1 {! connected to >=1 any atom with double bond}
+}
+positive reactant r2{
+	H+ labeled h1}
+form bond (c2,h1)
+modify bond (c1,c2,single)
+modify atomtype (c2,C)
+modify atomtype (c1,C+)
+modify atomtype (h1,H)
+}
+
+rule aromaticProt3{
+neutral aromatic reactant r1{
+	aromatic C labeled c1 {connected to >=2 group cc with aromatic bond, ! connected to >=1 any atom with double bond}
+	aromatic C labeled c2 aromatic bond to c1 {! connected to >=1 any atom with double bond}
+}
+positive reactant r2{
+	H+ labeled h1}
+
+form bond (c2,h1)
+modify bond (c1,c2,single)
+modify atomtype (c2,C)
+modify atomtype (c1,C+)
+modify atomtype (h1,H)
+}*/
+
+rule protonatedCarbonylformation{
+positive reactant r1{
+	C+ labeled c1
+	O labeled o1 single bond to c1}
+modify atomtype (c1,C)
+modify atomtype (o1,O+)
+increase bond order (c1,o1)
+}
+
+rule OxoniumScission{
+positive reactant r1{
+	C labeled c1
+	O+ labeled o1 double bond to c1
+	C labeled c2 single bond to o1}
+break bond (c2,o1)
+modify atomtype (o1,O)
+modify atomtype (c2,C+)
+}
+
+rule Hshift {
+positive reactant r1 {
+	C+ labeled c1 
+	C labeled c2 single bond to c1
+	H labeled h1 single bond to c2
+	}
+break bond (h1,c2)
+form bond (c1,h1)
+modify atomtype (c1,C)
+modify atomtype (c2, C+)
+}
+
+rule AllylShift{
+positive reactant r1{
+	C+ labeled c1
+	C labeled c2 single bond to c1
+	C labeled c3 double bond to c2}
+decrease bond order (c2,c3)
+increase bond order (c1,c2)
+modify atomtype (c1,C)
+modify atomtype (c3,C+)
+}
+
+//Decarbonylation step
+rule deCarbonylation{
+positive linear reactant r1{
+	C labeled  c1
+	C+ labeled c2 single bond to c1
+	O labeled o1 double bond to c2}
+break bond (c1,c2)
+modify atomtype (c1,C+)
+modify atomtype (c2,C:)
+}
+
+
+//Protonation of an alcohol group
+rule oxygenprot{
+neutral reactant r1{
+	C labeled c1
+	O labeled o1 single bond to c1 // will also protonate ethers, if any! 
+}
+
+positive reactant proton{
+	H+ labeled h1
+}
+
+constraints {
+		r1.size between 1 and 10
+}
+
+form bond (o1, h1)
+modify atomtype (o1, O+)
+modify atomtype (h1, H)
+}
+
+//Deprotonation of an alcohol group
+rule alcoholdeprot{
+positive reactant r1{
+	O+ labeled o1
+	H labeled h1 single bond to o1
+}
+break bond (o1,h1)
+modify atomtype(o1,O)
+modify atomtype (h1,H+)
+}
+//Dehydration of oxonium species to form carbenium ion
+
+rule dehydration{
+reactant r1 {
+	C labeled c1 
+	O+ labeled o1 single bond to c1
+}
+constraints {
+	r1.charge = 1
+	r1.size <=10
+}
+break bond (c1, o1)
+modify atomtype (c1, C+)
+modify atomtype (o1,O)
+} 
+
+//Deprotonation of carbenium to form C=C
+rule CarbeniumdeProt{
+positive reactant r1 {
+	C+ labeled c1
+	C labeled c2 single bond to c1 {!connected to >=1 O with double bond}
+	H labeled h1 single bond to c2}
+constraints{ r1.size <= 10}
+break bond (c2, h1)
+increase bond order (c1, c2)
+modify atomtype (c1, C)
+modify atomtype (h1, H+)
+
+}
+
+//Adsorption of C=C (reverse of the previous step)
+
+rule CdoubleCProtonation{
+reactant r1 {
+	C labeled c1
+	C labeled c2 double bond to c1
+} 
+
+positive reactant r2{
+	H+ labeled h1}
+	
+constraints {r1.charge = 0 && r1.size <15}
+
+form bond (c1, h1)
+decrease bond order (c1,c2)
+modify atomtype (c2,C+)
+modify atomtype (h1, H)
+}
+
+//Protonation of the carbonyl group
+rule CarbonylProt{
+neutral reactant r1{
+	C labeled c1 {! connected to >=1 O with single bond}
+	O labeled o1 double bond to c1}
+positive reactant r2{H+ labeled h1}
+constraints {r1.size <= 10 && r1 is oxygenate}
+form bond (o1,h1)
+decrease bond order (c1,o1)
+modify atomtype (c1, C+)
+modify atomtype (h1, H)
+}
+
+//Deprotonation to form Carbonyl group
+rule CarbonylDeprot{
+reactant r1 {
+	C+ labeled c1
+	O labeled o1 single bond to c1
+	H labeled h1 single bond to o1
+}
+constraints{
+	r1.charge =1 && r1.size <10 && r1 is oxygenate
+}
+break bond (o1,h1)
+increase bond order (c1, o1)
+modify atomtype (c1,C)
+modify atomtype (h1, H+)
+}
+
+
+//rule Hydride transfer from {HTA]H
+rule HydrideTransfer1{
+positive linear reactant r1{
+	C+ labeled c1 }
+neutral reactant r2{
+	HTA labeled t1 
+	H labeled h1 single bond to t1}
+//constraints {! r1 contains >=1 of group CdoubleC}
+constraints{r1.size <=9}
+modify atomtype (c1,C)
+break bond (t1,h1)
+form bond (h1,c1)
+modify atomtype (t1,HTA+)
+rule cost is 10000
+}
+
+//rule Hydride transfer from a molecule to {HTA}+
+
+rule HydrideTransfer2{
+positive reactant r1{
+	HTA+ labeled t1}
+neutral reactant r2{
+	nonaromatic C labeled c1 
+	H labeled h1 single bond to c1}
+constraints {
+	r2.size <=9
+	//(! r2 contains group CdoubleC && r2.size >1)||(r2 contains group CdoubleC && r2.size >3)
+}
+
+break bond (c1,h1)
+form bond (t1, h1)
+modify atomtype (t1, HTA)
+modify atomtype (c1, C+)
+rule cost is 10000
+}
+
+
+// Oligomerization of carbenium ion with an olefin
+rule Oligomerization{
+positive linear reactant r1{
+	C+ labeled c1
+}
+neutral reactant r2 group CdoubleC(carb1=>c2,carb2=>c3)
+constraints {r1.size + r2.size <10}
+form bond (c1, c2)
+decrease bond order (c2,c3)
+modify atomtype (c3,C+)
+modify atomtype (c1,C)
+}
+
+// beta scission of a carbenium ion (reverse of oligomerization)
+rule betaScission{
+positive reactant r1{
+	C+ labeled c1
+	C labeled c2 single bond to c1
+	C labeled c3 single bond to c2}
+constraints {r1.size <10}
+break bond (c2,c3)
+increase bond order (c1,c2)
+modify atomtype (c1,C)
+modify atomtype (c3,C+)
+}
+
+// cyclization reaction
+rule cyclization{
+positive linear reactant r1{
+	nonringatom C+ labeled c1 {connected to >=1 C with single bond}
+}
+positive linear reactant r2{
+	C labeled c2
+	C labeled c3 double bond to c2}
+constraints {r1.size <9}
+form bond (c1,c2)
+decrease bond order (c2,c3)
+modify atomtype (c1, C)
+modify atomtype (c3, C+)
+product constraints on prodMol{
+	prodMol.minringsize >=5 && prodMol.maxringsize <7}
+only intramolecular reaction//this reaction can happen ONLY as an intramolecular cyclization reaction! note that this is main difference between 
+							 // this rule and the oligomerization rule. 
+}
+
+/*
+//alkylation reaction
+rule Alkylation1{
+reactant r1{
+	nonringatom C+ labeled c1
+	}
+reactant r2{
+	aromatic C labeled c2 {connected to o with aromatic bond, ! connected to >=1 any atom with double bond}
+	aromatic C labeled c3 aromatic bond to c2 {! connected to >=1 any atom with double bond}
+}
+constraints {r1.size + r2.size <=10}
+form bond (c1,c2)
+modify bond (c2,c3,single)
+modify atomtype (c1, C)
+modify atomtype (c2,C)
+modify atomtype (c3,C+)
+product constraints on mol{
+	(mol.minringsize >=5 && mol.maxringsize <=6) || (! mol is cyclic)}
+allow intramolecular reaction
+}
+
+//alkylation reaction
+rule Alkylation2{
+reactant r1{
+	nonringatom C+ labeled c1
+	}
+reactant r2{
+	aromatic C labeled c2 {connected to o with aromatic bond, ! connected to >=1 any atom with double bond}
+	aromatic C labeled c3 aromatic bond to c2 {! connected to >=1 any atom with double bond}
+}
+constraints {r1.size + r2.size <=10}
+form bond (c1,c3)
+modify bond (c2,c3,single)
+modify atomtype (c1, C)
+modify atomtype (c2,C+)
+modify atomtype (c3,C)
+product constraints on mol{
+	(mol.minringsize >=5 && mol.maxringsize <=6) || (! mol is cyclic)}
+allow intramolecular reaction
+}
+
+//alkylation reaction of hydrocarbon aromatic
+rule Alkylation3{
+reactant r1{
+	nonringatom C+ labeled c1
+	}
+reactant r2{
+	aromatic C labeled c2 {connected to >=2 group cc with aromatic bond, ! connected to >=1 any atom with double bond}
+	aromatic C labeled c3 aromatic bond to c2 {! connected to >=1 any atom with double bond}
+}
+constraints {r1.size + r2.size <=10}
+form bond (c1,c2)
+modify bond (c2,c3,single)
+modify atomtype (c1, C)
+modify atomtype (c2,C)
+modify atomtype (c3,C+)
+product constraints on mol{
+	(mol.minringsize >=5 && mol.maxringsize <=6) || (! mol is cyclic)
+	
+	fragment f{
+		C labeled c1
+		C labeled c2 any bond to c1
+		C labeled c3 any bond to c2
+		C labeled c4 any bond to c3
+		C labeled c5 any bond to c4
+		ringbond c1 any bond to c5}
+	
+	! mol contains >=1 of f}
+allow intramolecular reaction
+}*/
+
+rule Alkylation{
+reactant r1{
+	nonringatom C+ labeled c1}
+reactant r2{
+	aromatic C labeled c2 {! connected to >=1 any atom with double bond}
+	aromatic C labeled c3 aromatic bond to c2 {! connected to >=1 any atom with double bond}
+} constraints {r1.size + r2.size <=10}
+form bond (c1,c2)
+modify bond (c2,c3,single)
+modify atomtype (c1,C)
+modify atomtype (c2,C)
+modify atomtype (c3,C+)
+product constraints on mol{
+	(mol.minringsize >=5) || (! mol is cyclic)
+	
+	
+	! mol is bridged
+}
+allow intramolecular reaction
+}
+
+
+find pathways to mol{
+	mol is "C=C=C"}constraints{
+	maximum length shortest +3
+	contains >=1 rule aromaticProt with molec{
+		molec is "c1ccco1"}
+	contains >=1 rule deCarbonylation
+	eliminate similar pathways}store in "allenepaths.txt"
+	
+find pathways to mol{
+	mol is "c1cc(o2)c(cc2)cc1"}constraints{
+	maximum length shortest + 3
+	rule Alkylation only occurs with mol{
+		mol.size >=2 }
+	eliminate similar pathways}store in "benzofuranpaths.txt"
+
+
+find pathways to mol{
+	mol is "C(=C)(C)[C+]"} constraints{
+	maximum length shortest +1
+	eliminate similar pathways} store in "C4intermediate1.txt"
+	
+find pathways to mol{
+	mol is "C(C)(C)[C+]"} constraints {
+	maximum length shortest + 1
+	eliminate similar pathways} store in "C4intermediate2.txt"

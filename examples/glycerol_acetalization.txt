@@ -1,0 +1,216 @@
+input reactant "OCC(O)CO"
+//input reactant "[18O]CC(O)CO"
+//input reactant "OCC([18O])CO"
+input reactant "[H+]"
+input reactant "CC(=O)C"
+//input reactant "CC(=[18O])C"
+//input reactant "[{HTA}H]"
+input reactant "O"
+
+
+//definition of a characteristic called primaryCarbenium
+
+define characteristic primaryCarbenium on mol
+{ 
+  fragment a{
+C+ labeled 1 {! connected to >1 heavy atom}
+}
+  mol contains a
+}
+
+group CdoubleC (carb1,carb2)
+{
+C labeled carb1
+C labeled carb2 double bond to carb1}
+
+define composite atom HTA //Hydrogen Transfer Agent
+
+
+//global constraints specification
+global constraints on  Molecule
+{
+//declaration of a fragment named 'a'
+fragment a
+{
+C+ labeled 1
+C labeled 2 double bond to 1
+}
+//molecule does not contain C+=C
+! Molecule contains a
+Molecule.size between 1 and 11
+Molecule.charge between 0 and 1
+fragment b
+{
+C labeled c1
+C labeled c2 double bond to c1
+X labeled x1 double bond to c2
+}
+(! Molecule contains >= 1 of b) //no consecutive double bonds ! 
+
+fragment c
+{
+    C labeled c1
+    O labeled o1 single bond to c1 {!connected to >1 C}
+    O labeled o2 single bond to c1 {!connected to >1 C}
+}
+
+! Molecule contains >=1 of c
+}
+//Protonation of an alcohol group
+rule oxygenprot{
+neutral reactant r1{
+C labeled c1
+O labeled o1 single bond to c1 // will also protonate ethers, if any! 
+}
+
+positive reactant proton{
+H+ labeled h1
+}
+
+constraints {
+r1.size between 1 and 10
+}
+
+form bond (o1, h1)
+modify atomtype (o1, O+)
+modify atomtype (h1, H)
+}
+
+//Deprotonation of an alcohol group
+rule alcoholdeprot{
+positive reactant r1{
+O+ labeled o1
+H labeled h1 single bond to o1
+}
+break bond (o1,h1)
+modify atomtype(o1,O)
+modify atomtype (h1,H+)
+}
+//Dehydration of oxonium species to form carbenium ion
+
+rule dehydration{
+reactant r1 {
+C labeled c1 
+O+ labeled o1 single bond to c1
+}
+constraints {
+r1.charge = 1
+r1.size <=10
+}
+break bond (c1, o1)
+modify atomtype (c1, C+)
+modify atomtype (o1,O)
+} 
+
+
+//Protonation of the carbonyl group
+rule CarbonylProt{
+neutral reactant r1{
+    C labeled c1 {! connected to >=1 O with single bond}
+    O labeled o1 double bond to c1}
+positive reactant r2{H+ labeled h1}
+constraints {r1.size < 10 && r1 is oxygenate}
+form bond (o1,h1)
+decrease bond order (c1,o1)
+modify atomtype (c1, C+)
+modify atomtype (h1, H)
+}
+
+//Deprotonation to form Carbonyl group
+rule CarbonylDeprot{
+reactant r1 {
+    C+ labeled c1
+    O labeled o1 single bond to c1
+    H labeled h1 single bond to o1
+}
+constraints{
+    r1.charge =1 && r1.size <10 && r1 is oxygenate
+}
+break bond (o1,h1)
+increase bond order (c1, o1)
+modify atomtype (c1,C)
+modify atomtype (h1, H+)
+}
+
+//Deprotonation of carbenium to form C=C
+rule CarbeniumdeProt{
+positive reactant r1 {
+    C+ labeled c1
+    C labeled c2 single bond to c1 {!connected to >=1 O with double bond}
+    H labeled h1 single bond to c2}
+constraints{ r1.size < 10}
+break bond (c2, h1)
+increase bond order (c1, c2)
+modify atomtype (c1, C)
+modify atomtype (h1, H+)
+
+}
+
+//Adsorption of C=C (reverse of the previous step)
+
+rule CdoubleCProtonation{
+reactant r1 {
+    C labeled c1
+    C labeled c2 double bond to c1
+} 
+
+positive reactant r2{
+    H+ labeled h1}
+    
+constraints {r1.charge = 0 && r1.size <15}
+
+form bond (c1, h1)
+decrease bond order (c1,c2)
+modify atomtype (c2,C+)
+modify atomtype (h1, H)
+}
+
+rule etherification{
+reactant r1{
+C+ labeled c1 
+}
+reactant r2{
+O labeled o1 {! connected to >=1 C+, connected to 1 C}
+H labeled h1 single bond to o1}
+constraints {r1.size <=10 && r1.charge =1
+	r1.size + r2.size <=11
+    r1.charge + r2.charge = 1}
+
+break bond (h1,o1)
+form bond (c1,o1)
+modify atomtype (c1,C)
+modify atomtype (h1, H+)
+product constraints on prodMol{
+    (prodMol is cyclic && prodMol.minringsize >=5 && prodMol.maxringsize <7) || (! prodMol is cyclic)
+    (prodMol.charge = 1 && prodMol.size <2) || (prodMol.charge = 0 && prodMol.size >=2)}
+allow intramolecular reaction
+}
+
+find pathways to mol{
+    //mol is "CC1(C)OCC(CO)O1"    
+    fragment f{
+        ringatom O labeled x1 {connected to 2 C}
+		ringatom C labeled x2 single bond to x1{connected to 2 C with single bond}
+		ringatom O labeled x3 single bond to x2
+        }
+	fragment f2{
+		nonringatom O labeled x{connected to 1 H with single bond}
+	}
+    mol contains 1 of f && mol contains 1 of f2
+    mol.size =9 && mol.charge =0 && mol is cyclic && mol.maxringsize <6
+} constraints {
+    maximum length shortest + 2
+   // eliminate similar pathways
+} store in "dioxanes.txt"
+
+
+
+
+//list complete mechanisms to mol{
+    //mol is "CC1(C)OCC(CO)O1"
+//} overall constraints {
+    //maximum cycles 4}
+//cycles constraints {
+    //eliminate similar mechanisms
+    //maximum length 4} store in "dioxaneHMF.txt"
+    

@@ -1,0 +1,382 @@
+input reactant "CCC"
+input reactant "[H+]"//representing a bronsted acid 
+input reactant "[{HTA}H]"
+
+group CdoubleC (c1,c2){
+    C labeled c1
+    C labeled c2 double bond to c1}
+    
+define characteristic paraffinicMol on Molecule{
+    ! Molecule is oxygenate
+    ! Molecule is aromatic
+    ! Molecule contains >=1 of group CdoubleC
+}
+
+define characteristic olefinicMol on Molecule{
+    ! Molecule is oxygenate
+    ! Molecule is aromatic
+    Molecule contains >=1 of group CdoubleC
+}
+
+define characteristic allylicMol on Molecule{
+    fragment f{
+        C labeled c1 {! connected to >1 C with any bond}
+        C labeled c2 double bond to c1
+        C labeled c3 single bond to c2}
+    Molecule contains >=1 of f
+}
+
+define characteristic primaryCarbeniumIon on Mol{
+	fragment f{
+		C+ labeled c1 {connected to <2 C with single bond}
+		}
+	Mol.charge = 1 && Mol contains 1 of f
+
+}
+define composite atom HTA
+global constraints on  Molecule
+{
+    //declaration of a fragment named 'a'
+    fragment a
+    {
+        C+ labeled 1
+        C labeled 2 double bond to 1
+    }
+    
+    ! Molecule contains a
+    Molecule.size < 6
+    //cannot have a C=C=C or a C=C=O
+    fragment b
+    {
+        C labeled c1
+        C labeled c2 double bond to c1
+        X labeled x1 double bond to c2 // note X represents a heavy atom
+    }
+    ! Molecule contains b
+    
+    (! Molecule contains >=3 of group CdoubleC) || (Molecule is cyclic)
+}
+
+//protonation of paraffinic carbon
+
+rule AlkProt{
+neutral linear reactant r1{
+    C labeled c1
+}
+
+positive reactant prot{
+    H+ labeled h1
+}
+
+constraints{
+    fragment f{
+        C labeled c1
+        $ labeled d1 double bond to c1}
+    ! r1 contains >=1 of f
+    
+    r1.size >2
+    
+}
+form bond (c1,h1)
+modify atomtype (c1, C*)
+modify atomtype (h1, H)
+
+}
+
+//deprotonation of carbonium - reverse of AlkProt
+
+rule AlkDeProt{
+positive linear reactant r1{
+    C* labeled c1
+    H labeled h1 single bond to c1
+}
+
+break bond (c1,h1)
+modify atomtype (c1, C)
+modify atomtype (h1,H+)
+
+}
+
+//dehydrogenation of carbonium ion to form carbenium ion
+
+rule AlkDehyd{
+positive linear reactant r1{
+    C* labeled c1
+    H labeled h1 single bond to c1
+    H labeled h2 single bond to c1
+}
+constraints {r1.size >2}
+break bond (c1,h1)
+break bond (c1,h2)
+form bond (h1,h2)
+modify atomtype (c1, C+)
+
+}    
+
+//protolysis of carbonium ion to form carbenium ion and a paraffin
+
+rule AlkProtolysis{
+positive linear reactant r1{
+    C* labeled c1
+    C labeled c2 single bond to c1
+    H labeled h1 single bond to c1
+}
+
+break bond (c1,c2)
+break bond (c1,h1)
+form bond (c2,h1)
+modify atomtype (c1,C+)
+}
+
+//desorption of carbenium ions to form olefins
+
+rule Desorption{
+positive reactant r1{
+    C+ labeled c1
+    C labeled c2 single bond to c1 {! connected to any atom with double bond}
+    H labeled h1 single bond to c2
+}
+
+break bond (c2,h1)
+increase bond order (c1, c2)
+modify atomtype (c1, C)
+modify atomtype (h1, H+)
+}
+
+//adsorption of olefins
+
+rule OleAds{
+neutral olefinic linear reactant r1{
+    C labeled c1
+    C labeled c2 double bond to c1
+}
+
+positive reactant prot{
+    H+ labeled h1
+}
+
+form bond (c1,h1)
+decrease bond order (c1,c2)
+modify atomtype (c2, C+)
+modify atomtype (h1,H)
+}
+
+//oligomerization 
+rule Oligo{
+neutral olefinic linear reactant r1{
+    C labeled c1
+    C labeled c2 double bond to c1
+}
+
+positive linear reactant r2{
+    C+ labeled c3
+}
+//constraints {r2.size > 1}
+form bond (c1,c3)
+decrease bond order (c1,c2)
+modify atomtype (c3,C)
+modify atomtype (c2, C+)
+//product constraints on mol{
+    //(mol.minringsize >=5 && mol.maxringsize <=6) || (! mol is cyclic)}
+//allow intramolecular reaction
+}
+
+//beta scission
+rule BetaSci{
+positive linear reactant r1{
+    C+ labeled c1
+    C labeled c2 single bond to c1
+    C labeled c3 single bond to c2 //{connected to >1 C with any bond}
+}
+break bond (c2,c3)
+increase bond order (c1,c2)
+modify atomtype (c1,C)
+modify atomtype (c3, C+)
+}
+/*
+//Hydride transfer – to be used if HTA is not used!
+rule Htransfer{
+positive reactant r1{
+    C+ labeled c1
+}
+neutral linear reactant r2{
+    C labeled c2 
+    H labeled h1 single bond to c2}
+constraints {
+    ! r1 contains >=1 of group CdoubleC
+    ! r2 is allylicMol
+    (r2 is paraffinicMol && r2.size >1)||(r2 is olefinicMol && r2.size >3)
+    r1.size + r2.size <10
+}
+break bond (c2,h1)
+form bond (c1,h1)
+modify atomtype (c1,C)
+modify atomtype (c2,C+)
+}*/
+
+//rule Hydride transfer from {HTA]H
+rule HydrideTransfer1{
+positive reactant r1{
+    C+ labeled c1 }
+neutral reactant r2{
+    HTA labeled t1
+    H labeled h1 single bond to t1}
+modify atomtype (c1,C)
+break bond (t1,h1)
+form bond (h1,c1)
+modify atomtype (t1,HTA+)
+}
+
+//rule Hydride transfer from linear molecule to {HTA}+
+
+rule HydrideTransfer2Linear{
+positive reactant r1{
+    HTA+ labeled t1}
+neutral linear reactant r2{
+    C labeled c1 
+    H labeled h1 single bond to c1}
+constraints {
+    //r2.size <10
+    !r2 is allylicMol
+    (r2 is paraffinicMol && r2.size >1)||(r2 is olefinicMol && r2.size >3)
+}
+
+break bond (c1,h1)
+form bond (t1, h1)
+modify atomtype (t1, HTA)
+modify atomtype (c1, C+)
+
+}
+
+
+//Alkylation
+rule Alkyl{
+positive reactant r1{
+    C+ labeled c1 
+        }
+neutral reactant r2{
+    C labeled c2
+    H labeled h1 single bond to c2}
+constraints{
+    r2.size >1 &&  r2 is paraffinicMol
+    ! r1 is allylicMol
+    r1.size + r2.size <10
+}
+form bond (c1,c2)
+break bond (c2,h1)
+modify atomtype (c1,C)
+modify atomtype (h1,H+)
+}
+
+//ring expansion
+
+rule RingExpansion{
+positive cyclic reactant r1{
+    C labeled c1 
+    C+ labeled c2 single ring bond to c1
+    C labeled c3 single nonring bond to c2
+    H labeled h1 single bond to c3}
+constraints {
+    r1.minringsize <6}
+form bond (c1,c3)
+form bond (c2,h1)
+break bond (c1,c2)
+break bond (c3,h1)
+}
+
+//Cyclization with internal hydride shifts
+
+rule Cyclization{
+positive linear reactant r1{
+    nonringatom C+ labeled c1 
+    C labeled c2 single bond to c1
+    C labeled c3 any bond to c2
+    C labeled c4 any bond to c3
+    C labeled c5 any bond to c4
+    C labeled c6 double bond to c5}
+form bond (c1,c6)
+decrease bond order (c5,c6)
+modify atomtype (c1,C)
+modify atomtype (c5,C+)
+}
+
+//Cyclization to form 5 carbon rings
+rule Cyclize{
+positive linear reactant r1{
+    C labeled c1
+    nonringatom C+ labeled c2 single bond to c1
+    C labeled c3 single bond to c2
+    C labeled c4 any bond to c3
+    C labeled c5 single bond to c4
+    C labeled c6 double bond to c5}
+form bond (c2,c6)
+decrease bond order (c5,c6)
+modify atomtype (c2,C)
+modify atomtype (c5,C+)
+}
+
+/* 
+//Hydride transfer for rings – to be used if HTA is not used!
+
+rule RingHTransfer{
+positive linear reactant r1{
+    C+ labeled c1}
+neutral cyclic reactant r2{
+    ringatom C labeled c2
+    ringatom C labeled c3 single bond to c2
+    ringatom C labeled c4 double bond to c3
+    H labeled h1 single bond to c2
+    }
+break bond (c2,h1)
+form bond (c1,h1)
+modify atomtype (c1,C)
+modify atomtype (c2,C+)
+}*/
+
+//rule Hydride transfer from cyclic molecule to {HTA}+
+
+rule HydrideTransfer3Cyclic{
+positive reactant r1{
+    HTA+ labeled t1}
+neutral cyclic reactant r2{
+    ringatom C labeled c1
+    ringatom C labeled c2 single bond to c1
+    ringatom C labeled c3 double bond to c2
+    H labeled h1 single bond to c1
+    }
+
+break bond (c1,h1)
+form bond (t1, h1)
+modify atomtype (t1, HTA)
+modify atomtype (c1, C+)
+
+}
+
+
+//rule Alkylation of Aromatics
+
+rule AromAlyklation{
+neutral aromatic reactant r1{
+	c labeled c1 {! connected to >=1 C with single bond}
+	c labeled c2 aromatic bond to c1 {! connected to >=1 C with single bond}
+}
+positive reactant r2{
+	C+ labeled c3}
+constraints {r1.size + r2.size <10}
+form bond (c1,c3)
+modify bond (c1,c2,single)
+modify atomtype (c2,C+)
+modify atomtype (c3,C)
+}
+rule AromDealkylation{
+neutral aromatic reactant r1{
+	C labeled c1
+	nonringatom C labeled c2 single bond to c1}
+positive reactant r2{
+	H+ labeled h1 
+}
+form bond (c1,h1)
+break bond (c1,c2)
+modify atomtype (c2,C+)
+modify atomtype (h1, H)
+}
