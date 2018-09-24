@@ -1,5 +1,5 @@
 
-IDA_LIB=idas-1.1.0
+IDA_LIB=idas
 
 CPPFLAGS = -g -I$(IDA_LIB)/include
 

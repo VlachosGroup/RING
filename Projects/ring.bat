@@ -1,6 +1,6 @@
 @ECHO OFF
 
-java -jar ../bin/react.bin.jar %*
+java -jar ../silver/react.bin.jar %*
 
 IF %ERRORLEVEL% EQU 0 (
 
@@ -13,7 +13,7 @@ IF %ERRORLEVEL% EQU 0 (
  cd ../examples
  popd
  
- cl /EHsc /MD output.cpp ..\cpp\*.obj /I ..\cpp /I ..\cpp\idas-1.1.0\include /Feprogram.exe
+ cl /EHsc /MD output.cpp ..\cpp\*.obj /I ..\cpp /I ..\cpp\idas\include /Feprogram.exe
 
  IF %ERRORLEVEL% EQU 0 (
   echo.
