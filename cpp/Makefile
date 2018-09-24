@@ -3,7 +3,7 @@ IDA_LIB=idas
 
 CPPFLAGS = -g -I$(IDA_LIB)/include
 
-RING_SRC_FILES = AlliedClassImplementation.cpp AtomicConstituents.cpp AutomorphImplementation.cpp GroupContributions.cpp kineticModel.cpp Lumping.cpp Mechanisms.cpp MoleculeImplementation.cpp pathways.cpp Patternmatch.cpp qsarimplementation.cpp ReactiontypeImplementation.cpp RegistryImplementation.cpp RNGImplementation.cpp SubstructureImplementation.cpp ThirdPartyFiles.cpp KineticsInfo.cpp
+RING_SRC_FILES = additionalfunc.cpp atom.cpp atomcontainer.cpp automorphs.cpp common.cpp element.cpp groupadditivity.cpp kineticModel.cpp lumping.cpp Mechanisms.cpp molecule.cpp pathways.cpp patternmatch.cpp qsarimplementation.cpp reaction.cpp generated_rxn.cpp stringreg.cpp rng.cpp substructure.cpp ThirdPartyFiles.cpp KineticsInfo.cpp
 
 IDA_SRC_FILES = idaa.c idaa_io.c idas_band.c idas_bbdpre.c idas.c idas_dense.c idas_direct.c idas_ic.c idas_io.c idas_spbcgs.c idas_spgmr.c idas_spils.c idas_sptfqmr.c 
 SUNDIALS_SRC_FILES = sundials_band.c sundials_dense.c sundials_direct.c sundials_iterative.c sundials_math.c sundials_nvector.c sundials_spbcgs.c sundials_spgmr.c sundials_sptfqmr.c 

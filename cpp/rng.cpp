@@ -1,34 +1,49 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-#include <cstring>
-#include <sstream>
+#include <list>
 #include <map>
 #include <set>
 #include <vector>
-#include <cctype>
-#include <deque>
-#include <bitset>
-#include <iterator>
+#include <utility>
 #include <algorithm>
 #include <cmath>
-using namespace std;
 
-#include <stdio.h>
-#include <stdlib.h>
+//#include <Python.h>
+#include "molecule.h"
+#include "reaction.h"
+//#include "..\python\pyreactiontype.h"
 
-#include "Classheader.h"
-#include "AdditionalFunctions.h"
-#include "StringRegistry.h"
+#include "additionalfunc.h"
+#include "stringreg.h"
+#include "rng.h"
+
+using std::multimap; using std::map; using std::pair; 
+using std::vector; using std::set; using std::list; 
+using std::string; 
+using std::ofstream; using std::ifstream; using std::ios;
+using std::cout; using std::endl; 
+using std::pow;
+using std::find_if;
+
 
 void rxn_net_gen::GenerateNetwork()
 {
-	if (!setInitialReactants()) throw 1;	
+	cout<<"Here!"<<endl;
+	// Py_Initialize();
 	
+	
+	// Bunny c;
+	// c.vorpalness = 3;
+	// grail(&c);
+	
+	cout<<"After cython code"<<endl;
+	if (!setInitialReactants()) throw 1;	
+	cout<<"Now here!"<<endl;
 	vector<vector<pair<Molecule*,Patternmatch> > > ProcessedRuleVector;
-	/*this vector basically stores the patterns of the molecules of the processed molecule list that are potential partners of bimolecular reaction types.
-	Note that each of these rules have two reactants and hence take up two elements of the outermost vector. For e.g. if there are 10 bimolecular rules, 
-	ProcessedRuleVector's size will be 20, though each of these elements could have a vector of pairs of much larger size*/
+	///*this vector basically stores the patterns of the molecules of the processed molecule list that are potential partners of bimolecular reaction types.
+	//Note that each of these rules have two reactants and hence take up two elements of the outermost vector. For e.g. if there are 10 bimolecular rules, 
+	//ProcessedRuleVector's size will be 20, though each of these elements could have a vector of pairs of much larger size*/
 	
 	int bimolcount = 0;
 	for (int i=0;i<Rtlist.size();i++)
@@ -41,6 +56,7 @@ void rxn_net_gen::GenerateNetwork()
 	int rxncount = 0;
 	while (unprocessedmol.size()>0)
 	{
+		cout<<"Size of unprocessed mol: "<<unprocessedmol.size()<<endl;
 		if (AllReactions.size()>rxncount*1000)
 		{
 			cout<<"reactions generated: "<<AllReactions.size()<<endl;
@@ -57,6 +73,7 @@ void rxn_net_gen::GenerateNetwork()
 				
 		int patt_count=0;	
 		/* run through each reaction rule to generate possible reactions */
+		cout<<"Rtlist size: "<<Rtlist.size()<<endl;
 		for (int i=0;i<Rtlist.size();i++)
 		{
 			vector<Molecule> reactants;
@@ -91,6 +108,7 @@ void rxn_net_gen::GenerateNetwork()
 		}
 	
 	}
+	cout<<"Done till here!"<<endl;
 
 	DoPONALumping();
 	DoMoreLumping();
@@ -101,13 +119,17 @@ void rxn_net_gen::GenerateNetwork()
 
 	cout<<"Network generation completed"<<endl;
 	
-	
+	//Py_Finalize();
 
 }
 
 void rxn_net_gen::AddInitialReactants(std::list<string> & input)
 {
-	inputStrings =&input;
+	for (auto it = input.begin(); it != input.end(); it++)
+	{
+    	inputStrings.push_back(*it);
+	}
+	//inputStrings =&input;
 }
 
 void rxn_net_gen::AddReactionRules(std::vector<Reactiontype> & rules)
@@ -141,27 +163,24 @@ void rxn_net_gen::SetCalcThermo(bool YesOrNo)
 	shouldCalcThermo = YesOrNo;
 }
 
-
-
-
-
-
 bool rxn_net_gen::setInitialReactants()
 {
 	list<string>::iterator it;
-	for (it=inputStrings->begin();it!=inputStrings->end();it++)
+	for (it=inputStrings.begin();it!=inputStrings.end();it++)
 	{
 		/*for all inputs, check if it satisfies global constraints and if yes, put the molecule in hte string registry and create a new molecule object on the heap and keep the moelcule pointer.
 		Update unprocessed mol with the info. The rank is set to be zero. Also start lumping if required*/
 		Molecule mol ((*it),moleculesize((*it)));
 		mol.unique_smiles();
-		//cout<<"unique smiles is "<<mol.moleculestring()<<endl;
+		cout<<"unique smiles is1 "<<mol.moleculestring()<<endl;
 		pair<string, int> error = mol.checkValencyError();
 		if (error.second==0)
 		{
+			
+			cout<<"IN here!"<<endl;
+			cout<<"r: "<<globalconstraintcheck(mol)<<endl;
 			if (globalconstraintcheck(mol))
 			{
-			
 				string * molptr = StringRegistry::getStringPointer(mol.moleculestring());
 				Molecule * molactptr = new Molecule(mol.moleculestring(), mol.getsize());
 				(*molactptr).unique_smiles();
@@ -171,6 +190,7 @@ bool rxn_net_gen::setInitialReactants()
 				cout<<*molptr<<endl;
 				
 				InitialReactants.insert(molptr);
+				cout<<"In here"<<endl;
 				if (LumpStrat.shoudLump())
 				{
 					LumpMolecule(mol,molptr);
@@ -182,14 +202,6 @@ bool rxn_net_gen::setInitialReactants()
 		else
 		{	
 			return MolValencyErrorStatements(error);
-			//if (error.second==1)cout<<"Nonaromatic atom "<<error.first<<" has a valency-bond count mismatch"<<endl;
-			//if (error.second==2)cout<<"Aromatic atom "<<error.first<<" has a Hydrogen count mismatch"<<endl;
-			//if (error.second==3)cout<<"Aromatic atom "<<error.first<<" has a valency-bond count mismatch"<<endl;
-			//if (error.second==4)cout<<"atom N+ has a Hydrogen count mismatch"<<endl;
-			//if (error.second==5)cout<<"atom N+ has a valency-bond count mismatch"<<endl;
-			//if (error.second==6)cout<<"carbon atom has a Hydrogen count mismatch"<<endl;
-			//return false;
-
 		}	
 	}
 
@@ -234,9 +246,6 @@ void rxn_net_gen::DoPONALumping()
 	if (LumpStrat.getNaphthenicsParameter()>=0) LumpNaphthenics();
 	SetPONALumpsMap();
 }
-
-
-		
 
 void rxn_net_gen::printOutputInfo()
 {
@@ -292,10 +301,6 @@ void rxn_net_gen::printOutputInfo()
 		lumpedfile<<"number of occurences of rule "<<Rtlist[s].getRuleName()<<" is "<<LumpedRxnRuleCount[s].first<<" ("<<LumpedRxnRuleCount[s].second<<")"<<endl;
 	}
 	lumpedfile.close();
-
-
-	
-
 }
 
 void rxn_net_gen::calculateThermoValues()
@@ -448,12 +453,8 @@ void rxn_net_gen::GenerateBimolecularRxns(int i, std::vector<Molecule> & reactan
 						{
 							if (check_combined_match(reactants,i))
 							{
-								//cout<<"Here3.75!!"<<endl;
-								//cout<<"i: "<<i<<endl;
-								//cout<<"reactants: "<<reactants.size()<<endl;
-								//cout<<"matches: "<<matches2.size()<<endl;
+								
 								Reaction React(reactants,Rtlist[i], matches2);
-								//cout<<"Here3.8!!"<<endl;
 								add_unique_molecules_reactions(React,i,false);
 							}
 							/*NOTE: ProcessedRuleVector has been updated with info regarding the current molecule can participate as either of the pattern. So the case of A+A -->products is taken care of here. 
@@ -598,13 +599,17 @@ rxn_net_gen::rxn_net_gen(rxn_net_gen * Network, LumpingStrategy & Strat)
 
 Patternmatch rxn_net_gen::checkmatch(vector<Molecule> & M, int & i, int j)
 {
+	cout<<"In checkmatch here!"<<endl;
+	
 	//checks if reaction constraints are satisfied and then finds all patterns! 
 	bool result = true;
 	//Patternmatch P;
 	if (j==0)
-		result = (Rtlist[i].RxnConstraints.front())(M[0]);
+    	result = check_reactant_constraint0(M[0], i, 0);
+		//result = (Rtlist[i].RxnConstraints.front())(M[0]);
 	else 
-		result = (Rtlist[i].RxnConstraints.back())(M[0]);
+		result = check_reactant_constraint1(M[0], i, 1);
+		//result = (Rtlist[i].RxnConstraints.back())(M[0]);
 	if (result)
 	{
 		return(check_reactant_pattern(M[0],Rtlist[i].reactant_pattern[j]));
@@ -620,7 +625,8 @@ bool rxn_net_gen::check_combined_match(std::vector<Molecule> & M, int &i)
 		if ((Rtlist[i].isIntraMolecularAlso() || Rtlist[i].isIntraMolecularOnly()) && (M[0].moleculestring()==M[1].moleculestring()))
 			return true;
 		else
-			return (Rtlist[i].CombinedConstraint)(M[0],M[1]);
+			return check_combined_constraint(M[0], M[1], i);
+			//return (Rtlist[i].CombinedConstraint)(M[0],M[1]);
 	}	
 	else return true;
 	
@@ -636,13 +642,18 @@ Patternmatch rxn_net_gen::check_reactant_pattern(Molecule & Molec, Substructure 
 
 bool rxn_net_gen::globalconstraintcheck(Molecule &Molec)
 {
-	return (GlobalConstraints)(Molec);
+	bool result = check_global_constraints(Molec);
+	cout<<"After checking constraint"<<endl;
+	cout<<"Result is: "<<result<<endl;
+	return result;
+	//return (GlobalConstraints)(Molec);
 }
 
 
 bool rxn_net_gen::check_product_constraints(Molecule& M, int i)
 {	
-	return (Rtlist[i].ProductConstraints)(M);
+	return check_product_constraint(M, i);
+	//return (Rtlist[i].ProductConstraints)(M);
 }
 
 
@@ -720,10 +731,10 @@ void rxn_net_gen::add_unique_molecules_reactions(Reaction & React, int RtypeInde
 				double dS = calculateThermoOfRxn(EntropyType,current_rxn,Temperature);
 				double delN = getDeltaNGasPhase(current_rxn);
 
-				KineticsInfo kinInfo(*kinetics,current_rxn,0.0821,Temperature, dH, dS, delN, 0.0,firstGasSpecies(i,0), firstGasSpecies(i,1)); 
+				//KineticsInfo kinInfo(*kinetics,current_rxn,0.0821,Temperature, dH, dS, delN, 0.0,firstGasSpecies(i,0), firstGasSpecies(i,1)); 
 
 
-				kinInfo.getKineticParameters(PreExp,ActE,TempIndex,kinValue,calcK,usesBEP, usesLFER, alpha, beta, stick);
+				//kinInfo.getKineticParameters(PreExp,ActE,TempIndex,kinValue,calcK,usesBEP, usesLFER, alpha, beta, stick);
 					
 				if (kinValue < Rtlist[RtypeIndex].getMinRateConst())
 					IsConstraintSatisfied = false;
@@ -1036,6 +1047,10 @@ void rxn_net_gen::GetProductParentsInfoForRxn(generated_rxn& current_rxn, map<in
 
 void rxn_net_gen::print_rxnlist()
 {
+	
+	cout<<"size in rxn_list: "<<inputStrings.size()<<endl;
+	
+	
 	multimap<int, int>::iterator it;
 	ofstream myfile, myfile2, reconstructfile, myfile3;
 	myfile.open("reactions_SMILES.txt");
@@ -2013,9 +2028,9 @@ generated_rxn rxn_net_gen::GetOneRxnFromTwo(generated_rxn& r1, generated_rxn& r2
 	rxnPair.push_back(pair<generated_rxn,int>(r1,1));
 	rxnPair.push_back(pair<generated_rxn,int>(r2,1));
 					
-	partialMechanism pM(&rxnPair);
+	//partialMechanism pM(&rxnPair);
 					
-	stoich = pM.getStoichiometry();
+	//stoich = pM.getStoichiometry();
 	map<string*,int>::iterator map_it;
 
 	generated_rxn G;
@@ -3118,7 +3133,7 @@ bool rxn_net_gen::InterpretRxnsAndUpdate(vector<string>& tokens, int linenumber,
 
 		Rxns.push_back(pair<generated_rxn, int> (G, 1));
 
-		partialMechanism P(&Rxns);
+		//partialMechanism P(&Rxns);
 
 		ofstream wrongrxn;
 
@@ -3128,11 +3143,12 @@ bool rxn_net_gen::InterpretRxnsAndUpdate(vector<string>& tokens, int linenumber,
 			wrongrxn.open("wrongRxns.txt",ios::app);
 
 
-		if (P.isNetZero())
-		{
-			cout<<"Reaction on line "<<linenumber<<" (rule: "<<Rtlist[RuleIndex].getRuleName()<<") is a net zero reaction! Omitting this reaction!"<<endl;
-		}
-		else if (G.netMassDiff()!=0)
+		// if (P.isNetZero())
+		// {
+			// cout<<"Reaction on line "<<linenumber<<" (rule: "<<Rtlist[RuleIndex].getRuleName()<<") is a net zero reaction! Omitting this reaction!"<<endl;
+		// }
+		// else 
+		if (G.netMassDiff()!=0)
 		{
 			cout<<"Reaction on line "<<linenumber<<" (rule: "<<Rtlist[RuleIndex].getRuleName()<<") does not conserve mass! Omitting this reaction!"<<endl;
 			wrongrxn<<G.reactionstring()<<"  "<<linenumber<<endl;
@@ -3358,10 +3374,10 @@ void rxn_net_gen::StoreRxnsAndSpecies(const char* speciesfileName, const char* r
 
 }
 
-void rxn_net_gen::setKinetics(vector<KineticParamPtr>& kinFns)
-{
-	kinetics = &kinFns;
-}
+// void rxn_net_gen::setKinetics(vector<KineticParamPtr>& kinFns)
+// {
+	// kinetics = &kinFns;
+// }
 
 int rxn_net_gen::firstGasSpecies(int rxn, int rOrp)
 {
@@ -3390,19 +3406,3 @@ int rxn_net_gen::firstGasSpecies(int rxn, int rOrp)
 	return -1;
 }
 
-				
-
-	
-
-	
-
-
-
-
-
-
-
-
-			
-
-       

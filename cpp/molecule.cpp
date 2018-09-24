@@ -1,71 +1,68 @@
 #include <iostream>
-#include <fstream>
+//#include <fstream>
 #include <string>
 
-#include <cstring>
-#include <sstream>
+//#include <cstring>
+//#include <sstream>
 #include <map>
 #include <vector>
-#include <cctype>
-#include <algorithm>
-using namespace std;
+//#include <cctype>
+//#include <algorithm>
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
+//#include <stdio.h>
+//#include <stdlib.h>
+//#include <math.h>
 
-#include "Classheader.h"
-#include "AdditionalFunctions.h"
+#include "common.h"
+#include "additionalfunc.h"
+//#include "stringreg.h"
+//#include "clonable.h"
+//#include "element.h"
+//#include "atom.h"
+#include "atomcontainer.h"
+#include "molecule.h"
 
 
 //start of Molecule implementation
 
 
-
+using std::string; using std::set; using std::map; using std::vector;
+using std::pair; //using std::set; using std::map; using std::vector;
+using std::cout; using std::endl; //using std::map; using std::vector;
 
 
 Molecule::Molecule(string stringname, int m)
 		:Atomcontainer(m)// Constructor of Substructure class
 {
-	smilesstring=stringname;//assigning smilesstring as stringname
-	int r;
-	r=-1;//atom counters assignment
+	smilesstring = stringname;//assigning smilesstring as stringname
+	int r = -1;//atom counters assignment
 	Triplet* ring=new Triplet[100];//ring Triplet declaration
 	
-	int ringcounter;
-	ringcounter=0;//ring counter initialization
-	int i;
-	i=0;
-	string atomtypename;
-	atomtypename="";//string that will store the value of the atomtype_name 
+	int ringcounter = 0;//ring counter initialization
+	int i = 0;
+	string atomtypename;//string that will store the value of the atomtype_name 
 	string atomsymbol;//string that will store the value of the atomtype_symbol
-	atomsymbol="";
 
-	int parent;
-	parent=-1;//variable that has the information of parent of the new atom to be added
-	int bond_ident;
-	bond_ident=1;//gives bond_identification. 1 is single, 2 is double
+	int parent = -1;//variable that has the information of parent of the new atom to be added
+	int bond_ident = 1;//gives bond_identification. 1 is single, 2 is double
 	int* branch=new int[m];//initialization of array that stores branch nodes
-	int branchcounter;//counts the number of branches. Increases by 1 when a new branch forms, decreases when it ends
-	branchcounter=0;//initializing the branchcounter to zero
-	int isotopevalue=0;//0 is normal, else stores the actual isotope atomic mass.
+	int branchcounter = 0;//counts the number of branches. Increases by 1 when a new branch forms, decreases when it ends
+	int isotopevalue = 0;//0 is normal, else stores the actual isotope atomic mass.
 
 	vector < string > ringnumber;//stores as string the number index of hte ring in question.
-	bool IsCompositeAtomFound=false;
-	bool InsideSquareBrackets=false;
-	bool ExplicitSingleBond=false;
-	bool ExplicitDoubleBond=false;
+	bool IsCompositeAtomFound = false;
+	bool InsideSquareBrackets = false;
+	bool ExplicitSingleBond = false;
+	bool ExplicitDoubleBond = false;
 	int NumberOfRings=0;//keeps track of the number of Rings the atom is involved in. 
 	bool IsAfterPercentageSign=false;
 	bool IsBeforeElementinSquareBraces = true;
+
 	while(i<smilesstring.length())//each character of the smilesstring is read and processed one by one
 	{
 		string c;
-		
+        c  = smilesstring[i];// c stores the character in position i.
 	
-		c=smilesstring[i];// c stores the character in position i.
-	
-		
 		if (c=="[")
 		{
 			//cout<<InsideSquareBrackets<<endl;
@@ -75,7 +72,7 @@ Molecule::Molecule(string stringname, int m)
 			atomsymbol+="[";
 			IsBeforeElementinSquareBraces = true;
 			i++;
-			c=smilesstring[i];
+			c = smilesstring[i];
 		}
 		
 
@@ -2849,55 +2846,4 @@ int Molecule::NumberOfLeaves() const
 	return leaves;
 }
 	
-
-
-	
-
-
-
-
-	
-
-
-
-
-
-		
-
-
-			
-	
-
-			
-
-
-
-		
-
-				
-
-
-
-		
-
-
-
-				
-
-
-
-
-
-
-
-
-
-		
-
-
 //end of implementation of Molecule class
-
-
-
-
-

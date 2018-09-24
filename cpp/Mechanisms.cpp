@@ -16,8 +16,8 @@ using namespace std;
 #include <stdlib.h>
 #include <math.h>
 #include "Classheader.h"
-#include "AdditionalFunctions.h"
-#include "StringRegistry.h"
+#include "additionalfunc.h"
+#include "stringreg.h"
 
 
 Mechanisms::Mechanisms(rxn_net_gen* inputNetwork, const char* fname)

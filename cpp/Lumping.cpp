@@ -1,24 +1,12 @@
-#include <iostream>
-#include <fstream>
 #include <string>
-#include <cstring>
-#include <sstream>
-#include <map>
 #include <vector>
-#include <cctype>
-#include <algorithm>
-using namespace std;
+#include <cmath>
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
+#include "lumping.h"
 
-#include "Classheader.h"
-#include "AdditionalFunctions.h"
-#include "StringRegistry.h"
+using std::string; using std::vector; using std::pow;
 
-
-LumpInfo::LumpInfo(int Molsize, int Hydrogens, bool Molshape, int brValue, int dist, std::string * molstr)
+LumpInfo::LumpInfo(int Molsize, int Hydrogens, bool Molshape, int brValue, int dist, string * molstr)
 {
 	size = Molsize;
 	HydCount = Hydrogens;

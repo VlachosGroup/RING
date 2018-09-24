@@ -15,7 +15,7 @@ using namespace std;
 #include <stdlib.h>
 #include <math.h>
 #include "Classheader.h"
-#include "AdditionalFunctions.h"
+#include "additionalfunc.h"
 
 
 Surfqsar::Surfqsar(Molecule * M, int EOUnits)

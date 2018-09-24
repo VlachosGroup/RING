@@ -1,22 +1,15 @@
-#include <iostream>
-#include <fstream>
-#include <string>
-#include <cstring>
-#include <sstream>
 #include <map>
 #include <vector>
-#include <cctype>
-#include <queue>
-#include <algorithm>
+#include <utility>
 #include <set>
-using namespace std;
+#include <cmath>
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-#include "Classheader.h"
-#include "AdditionalFunctions.h"
+#include "additionalfunc.h"
+#include "automorphs.h"
 
+using std::vector; using std::pair; using std::map; using std::multimap;
+using std::set; 
+using std::pow;
 /*
 1. find the automorphs normally
 2. Calculate the internal rotation of leaves (include double bond case as well)

@@ -1,20 +1,11 @@
 #include <iostream>
-#include <fstream>
 #include <string>
-#include <cstring>
-#include <sstream>
-#include <map>
-#include <vector>
-#include <cctype>
-#include <queue>
-#include <algorithm>
-using namespace std;
 
-#include <stdio.h>
-#include <stdlib.h>
+#include "common.h"
 
-#include "Classheader.h"
-#include "AdditionalFunctions.h"
+using std::cout; using std::endl; 
+using std::string; //using std::endl; 
+
 
 //Path implementation
 void Path::add(int i)

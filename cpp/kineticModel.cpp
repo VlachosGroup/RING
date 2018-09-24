@@ -13,11 +13,10 @@
 #include <cmath>
 using namespace std;
 
-
-
+#include "rng.h"
 #include "Classheader.h"
-#include "AdditionalFunctions.h"
-#include "StringRegistry.h"
+#include "additionalfunc.h"
+#include "stringreg.h"
 #include <idas/idas.h>
 #include <idas/idas_dense.h>
 #include <idas/idas_spgmr.h>

@@ -1,22 +1,39 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-#include <cstring>
-#include <sstream>
+//#include <cstring>
+//#include <sstream>
 #include <map>
 #include <vector>
-#include <cctype>
-#include <queue>
-#include <algorithm>
+#include <utility>
+//#include <cctype>
+//#include <queue>
+//#include <algorithm>
 #include <set>
-using namespace std;
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-#include "Classheader.h"
-#include "AdditionalFunctions.h"
+//#include <stdio.h>
+//#include <stdlib.h>
+#include <cmath>
 
+//#include "common.h"
+#include "additionalfunc.h"
+//#include "stringreg.h"
+//#include "clonable.h"
+//#include "element.h"
+//#include "atom.h"
+//#include "singleatom.h"
+//#include "compositeatom.h"
+//#include "atomcontainer.h"
+//#include "molecule.h"
+#include "patternmatch.h"
+#include "substructure.h"
+#include "automorphs.h"
+#include "groupadditivity.h"
+
+using std::vector; using std::string; using std::map; using std::multimap;
+using std::pair; using std::set; 
+using std::log; using std::pow; //using std::multimap;
+using std::cout; using std::endl; using std::ifstream; //using std::endl; 
 
 vector<double> GATempDiscretePts::TempPts;
 
@@ -319,31 +336,31 @@ bool ThermoGA::calculateThermoProperty(const Molecule & mol, double& value, Ther
 {
 	value = 0.0;
 	
-	if (HasCorrelationsForThermo)
-	{
-		double EnthalpyA = 0.0;
-		double EnthalpyB = 0.0;
-		double EntropyA = 0.0;
-		double EntropyB = 0.0;
+	// if (HasCorrelationsForThermo)
+	// {
+		// double EnthalpyA = 0.0;
+		// double EnthalpyB = 0.0;
+		// double EntropyA = 0.0;
+		// double EntropyB = 0.0;
 
-		if ((CorrelationPtr)(mol,EnthalpyA, EnthalpyB, EntropyA, EntropyB))
-		{
+		// if ((CorrelationPtr)(mol,EnthalpyA, EnthalpyB, EntropyA, EntropyB))
+		// {
 
-			if (type ==EnthalpyType)
-			{
-				value = EnthalpyA*mol.totalAtomsOfType("C") + EnthalpyB;
-				return true;
-			}
-			if (type ==EntropyType)
-			{
-				value = EntropyA*mol.totalAtomsOfType("C") + EntropyB;
-				return true;
-			}
+			// if (type ==EnthalpyType)
+			// {
+				// value = EnthalpyA*mol.totalAtomsOfType("C") + EnthalpyB;
+				// return true;
+			// }
+			// if (type ==EntropyType)
+			// {
+				// value = EntropyA*mol.totalAtomsOfType("C") + EntropyB;
+				// return true;
+			// }
 
-			return true; //if not enthalpy or entropy type, default set things to zero FOR NOW
-		}
+			// return true; //if not enthalpy or entropy type, default set things to zero FOR NOW
+		// }
 	
-	}
+	// }
 
 
 	set<int>AtomsToBeCovered;//set of atoms to be checked with atom-centered groups

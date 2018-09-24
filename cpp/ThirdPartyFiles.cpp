@@ -15,8 +15,8 @@ using namespace std;
 
 
 #include "Classheader.h"
-#include "AdditionalFunctions.h"
-#include "StringRegistry.h"
+#include "additionalfunc.h"
+#include "stringreg.h"
 
 
 

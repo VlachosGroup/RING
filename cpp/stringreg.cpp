@@ -1,32 +1,22 @@
-#include <iostream>
-#include <fstream>
 #include <string>
-#include <cstring>
-#include <sstream>
 #include <vector>
-#include <list>
-#include <set>
+#include <utility>
 #include <map>
-#include <queue>
-#include <deque>
-using namespace std;
 
-#include <stdio.h>
-#include <stdlib.h>
+#include "stringreg.h"
 
-using namespace std;
-
-#include "StringRegistry.h"
+using std::vector; using std::map; using std::string; using std::pair;
 
 map<string, string*> StringRegistry::registry;
 vector<string> CompositeAtomsRegistry::CompositeAtomsList;
 
 bool StringRegistry::InRegistry(const std::string &s)
 {
-	if (registry.count(s)>0)return true;
-	else return false;
+	if (registry.count(s)>0)
+        return true;
+	else 
+        return false;
 }
-
 
 void StringRegistry::InsertIntoRegistry(const std::string & s)
 {
@@ -58,12 +48,10 @@ void StringRegistry::RemoveFromRegistry(const std::string & s)
 	}
 }
 
-
 void CompositeAtomsRegistry::InsertIntoList(string S)
 {
 	CompositeAtomsList.push_back(S);
 }
-
 
 int CompositeAtomsRegistry::getIndexOfAtom(string S)
 {
@@ -72,10 +60,3 @@ int CompositeAtomsRegistry::getIndexOfAtom(string S)
 			return i;
 	return -1;
 }
-
-
-
-
-
-
-

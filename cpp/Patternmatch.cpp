@@ -1,25 +1,34 @@
 #include <iostream>
-#include <fstream>
+//#include <fstream>
 #include <string>
-#include <cstring>
-#include <sstream>
-#include <map>
+//#include <cstring>
+//#include <sstream>
+//#include <map>
+#include <set>
 #include <vector>
-#include <cctype>
-using namespace std;
-
-#include <stdio.h>
-#include <stdlib.h>
-
-#include "Classheader.h"
-#include "AdditionalFunctions.h"
-
-
-
-
-
+#include <utility>
+//using namespace std;
+//
+//#include <stdio.h>
+//#include <stdlib.h>
+//
+//
+//#include "common.h"
+#include "additionalfunc.h"
+//#include "stringreg.h"
+//#include "clonable.h"
+//#include "element.h"
+//#include "atom.h"
+//#include "singleatom.h"
+//#include "compositeatom.h"
+//#include "atomcontainer.h"
+//#include "molecule.h"
+//#include "substructure.h"
+#include "patternmatch.h"
 
 //Start of implementation of Patternmatch class
+using std::vector; using std::pair; using std::string; using std::set;
+using std::cout; using std::endl; 
 
 Patternmatch::Patternmatch()
 {

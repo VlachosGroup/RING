@@ -1,18 +1,12 @@
 #include <iostream>
-#include <fstream>
 #include <string>
-#include <cstring>
-#include <sstream>
-#include <map>
 #include <vector>
-#include <cctype>
-using namespace std;
 
-#include <stdio.h>
-#include <stdlib.h>
+#include "substructure.h"
 
-#include "Classheader.h"
-#include "AdditionalFunctions.h"
+using std::string; using std::vector;
+using std::cout; using std::endl;
+
 
 //Substructure Implementation
 
@@ -20,8 +14,6 @@ Substructure::Substructure(string fragment_string, int m)
 		:Atomcontainer(m)
 {
 	//NEED TO CLEANUP CODE
-	
-	
 	fragmentstring=fragment_string;
 	string atomtypename;
 	string atomsymbol;

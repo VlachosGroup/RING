@@ -16,8 +16,8 @@ using namespace std;
 #include <stdlib.h>
 #include <math.h>
 #include "Classheader.h"
-#include "AdditionalFunctions.h"
-#include "StringRegistry.h"
+#include "additionalfunc.h"
+#include "stringreg.h"
 
 
 Pathways::Pathways(rxn_net_gen* net, PathwayConstraints& P, const char* name)

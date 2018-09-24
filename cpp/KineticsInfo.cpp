@@ -15,8 +15,8 @@ using namespace std;
 
 
 #include "Classheader.h"
-#include "AdditionalFunctions.h"
-#include "StringRegistry.h"
+#include "additionalfunc.h"
+#include "stringreg.h"
 
 
 KineticsInfo::KineticsInfo(vector<KineticParamPtr>& kinetics, generated_rxn& reaction, double GasConst, double T, double H, double S, double n, double d, int r, int p)
