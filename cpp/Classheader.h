@@ -39,6 +39,9 @@ using namespace std;
 #include "groupadditivity.h"
 #include "generated_rxn.h"
 #include "rng.h"
+#include "qsar.h"
+#include "pathways.h"
+#include "mechanisms.h"
 
 enum AstNodeType
 {
@@ -59,8 +62,6 @@ struct paircomp {
 		else return false;
 	}
 };
-
-
 
 class CHEMKinFiles
 {
