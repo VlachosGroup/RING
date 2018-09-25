@@ -1,22 +1,13 @@
-#include <iostream>
-#include <fstream>
 #include <string>
-#include <cstring>
-#include <sstream>
 #include <map>
-#include <vector>
-#include <cctype>
-#include <queue>
-#include <algorithm>
-#include <set>
-using namespace std;
+#include <cmath>
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-#include "Classheader.h"
+#include "groupadditivity.h"
 #include "additionalfunc.h"
+#include "qsar.h"
 
+using std::map; using std::string;
+using std::log10; using std::pow;
 
 Surfqsar::Surfqsar(Molecule * M, int EOUnits)
 {
@@ -318,30 +309,5 @@ double Surfqsar::calculateHLB()
 {
    return (3.674 + 10.215*pow(double(NumEOUnits+1), double(0.5)) + 0.362*KHZeroCalc()-1.119*double(NumEOUnits+1) - 4.825*pow(KHZeroCalc(),double(0.5)));
 }
-
-
-
-				
-					
-
-
-
-
-
-	
-
-
-
-
-
-
-		
-
-
-					
-
-
-
-
 
 

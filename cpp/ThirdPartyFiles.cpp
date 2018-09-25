@@ -15,6 +15,7 @@ using namespace std;
 
 
 #include "Classheader.h"
+#include "kinetics.h"
 #include "additionalfunc.h"
 #include "stringreg.h"
 

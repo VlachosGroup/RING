@@ -1,31 +1,14 @@
 #ifndef GROUPADDITIVITY_H
 #define GROUPADDITIVITY_H
 
-//#include <iostream>
-//#include <fstream>
 #include <string>
-//#include <cstring>
 #include <sstream>
 #include <vector>
 #include <utility>
-//#include <list>
 #include <set>
 #include <map>
-//#include <queue>
-//#include <deque>
-//#include <algorithm>
-//using namespace std;
 
-//#include "common.h"
-//#include "additionalfunc.h"
-//#include "stringreg.h"
-//#include "clonable.h"
-//#include "element.h"
-//#include "atom.h"
-//#include "atomcontainer.h"
 #include "molecule.h"
-//#include "patternmatch.h"
-//#include "substructure.h"
 
 enum ThermoType {EnthalpyType, EntropyType, CpType, FreeEnergyType, logPType};
 

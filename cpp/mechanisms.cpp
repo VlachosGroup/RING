@@ -1,23 +1,31 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-#include <cstring>
-#include <sstream>
+//#include <cstring>
+//#include <sstream>
 #include <map>
+#include <utility>
 #include <set>
 #include <vector>
-#include <cctype>
-#include <deque>
-#include <bitset>
-#include <iterator>
-using namespace std;
+//#include <cctype>
+//#include <deque>
+//#include <bitset>
+//#include <iterator>
+//using namespace std;
+//
+//#include <stdio.h>
+//#include <stdlib.h>
+//#include <math.h>
+#include "mechanisms.h"
+//#include "kinetics_info.h"
+//#include "additionalfunc.h"
+//#include "stringreg.h"
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-#include "Classheader.h"
-#include "additionalfunc.h"
-#include "stringreg.h"
+
+using std::map; using std::multimap; using std::string; using std::pair; 
+using std::vector; using std::set;
+using std::cout; using std::endl;
+using std::ofstream; using std::ios;
 
 
 Mechanisms::Mechanisms(rxn_net_gen* inputNetwork, const char* fname)
