@@ -1,24 +1,21 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-#include <cstring>
-#include <sstream>
 #include <map>
 #include <set>
 #include <vector>
-#include <cctype>
-#include <deque>
-#include <bitset>
-#include <iterator>
-using namespace std;
+#include <utility>
+#include <cmath>
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-#include "Classheader.h"
-#include "AdditionalFunctions.h"
-#include "StringRegistry.h"
+#include "pathways.h"
+#include "molecule.h"
+#include "qsar.h"
 
+using std::string; using std::map; using std::multimap; using std::vector; 
+using std::pair; using std::set;
+using std::ofstream; using std::ios;
+using std::cout; using std::endl; //using std::vector;
+using std::pow;
 
 Pathways::Pathways(rxn_net_gen* net, PathwayConstraints& P, const char* name)
 {

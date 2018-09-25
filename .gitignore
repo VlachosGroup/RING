@@ -33,3 +33,17 @@
 
 # Runtime files
 */output.*
+*/Lumps.txt
+*/species.txt
+*/reactions_list.txt
+
+examples/uniquePathwayRxnSet.txt
+examples/reconstructed_network.txt
+examples/ReactionsOfEachRule.txt
+examples/reactions_SMILES.txt
+examples/reactions_MF.txt
+examples/HMFPathways.txt
+examples/lumpedNetwork.txt
+examples/LumpedReconstructedNetwork.txt
+examples/LumpSpecies.txt
+examples/naphthenicsfile.txt
