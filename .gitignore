@@ -50,3 +50,15 @@ examples/naphthenicsfile.txt
 
 # Python byte compiled files
 *.pyc
+python/build/lib.win-amd64-3.6/pyring/react.cp36-win_amd64.pyd
+python/build/temp.win-amd64-3.6/Release/pyring/react.cp36-win_amd64.exp
+python/lumpedNetwork.txt
+python/naphthenicsfile.txt
+python/reconstructed_network.txt
+python/ReactionsOfEachRule.txt
+python/reactions_SMILES.txt
+python/reactions_MF.txt
+python/pyring/react.cp36-win_amd64.pyd
+python/pyring/pyreactiontype.h
+python/pyring/pyreactiontype.cpp
+python/pyring/pyreactiontype.html

@@ -22,12 +22,16 @@
 //#include "singleatom.h"
 //#include "compositeatom.h"
 //#include "atomcontainer.h"
-//#include "molecule.h"
+#include "molecule.h"
 //#include "patternmatch.h"
 //#include "substructure.h"
 //#include "reactiontype.h"
 //#include "generated_rxn.h"
 #include "reaction.h"
+//#include "rng.h"
+
+#include <Python.h>
+#include "..\python\pyring\reactiontype.h"
 
 using std::string; 
 using std::pair; 
@@ -260,8 +264,9 @@ bool Reactiontype::shouldCheckRateConstant()
 //start of Reaction
 Reaction::Reaction(vector<Molecule>& Mol, Reactiontype & React, vector<Patternmatch>& matches)
 {
-	
+	cout<<"in here"<<endl;
 	M= Mol;
+	cout<<"M size: "<<M.size()<<endl;
 	
 	Rt=React;
 	reactpattlist = matches;
@@ -458,7 +463,9 @@ void Reaction::generate_reactions()
 				cout<<"counting is "<<counting<<endl;
 				
 			}*/
-			if (!GenerateIntraMolecularRxnsOnly && !GenerateIntraMolecularRxnsAlso && (Rt.CombinedConstraint)(M[0], M[1]))//NOTE: this way, effectively, combined constraints cannot be applied to intramolecular reactions!!!!
+			cout<<"Till here"<<endl;
+			if (!GenerateIntraMolecularRxnsOnly && !GenerateIntraMolecularRxnsAlso && check_combined_constraint_for_reactiontype(Rt, M[0], M[1]))
+			//if (!GenerateIntraMolecularRxnsOnly && !GenerateIntraMolecularRxnsAlso && (Rt.CombinedConstraint)(M[0], M[1]))//NOTE: this way, effectively, combined constraints cannot be applied to intramolecular reactions!!!!
 			{
 				Atomcontainer B=(Atomcontainer)M[1];
 				A.merge(B);

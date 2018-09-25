@@ -9,10 +9,10 @@
 #include <algorithm>
 #include <cmath>
 
-//#include <Python.h>
+#include <Python.h>
 #include "molecule.h"
 #include "reaction.h"
-//#include "..\python\pyreactiontype.h"
+#include "..\python\pyring\reactiontype.h"
 
 #include "additionalfunc.h"
 #include "stringreg.h"
@@ -29,17 +29,17 @@ using std::find_if;
 
 void rxn_net_gen::GenerateNetwork()
 {
-	//cout<<"Here!"<<endl;
-	// Py_Initialize();
+	cout<<"Here!"<<endl;
+	Py_Initialize();
 	
 	
-	// Bunny c;
-	// c.vorpalness = 3;
-	// grail(&c);
+	Bunny c;
+	c.vorpalness = 3;
+	grail(&c);
 	
-	//cout<<"After cython code"<<endl;
+	cout<<"After cython code"<<endl;
 	if (!setInitialReactants()) throw 1;	
-	//cout<<"Now here!"<<endl;
+	cout<<"Now here!"<<endl;
 	vector<vector<pair<Molecule*,Patternmatch> > > ProcessedRuleVector;
 	///*this vector basically stores the patterns of the molecules of the processed molecule list that are potential partners of bimolecular reaction types.
 	//Note that each of these rules have two reactants and hence take up two elements of the outermost vector. For e.g. if there are 10 bimolecular rules, 
@@ -56,7 +56,7 @@ void rxn_net_gen::GenerateNetwork()
 	int rxncount = 0;
 	while (unprocessedmol.size()>0)
 	{
-		//cout<<"Size of unprocessed mol: "<<unprocessedmol.size()<<endl;
+		cout<<"Size of unprocessed mol: "<<unprocessedmol.size()<<endl;
 		if (AllReactions.size()>rxncount*1000)
 		{
 			cout<<"reactions generated: "<<AllReactions.size()<<endl;
@@ -73,7 +73,7 @@ void rxn_net_gen::GenerateNetwork()
 				
 		int patt_count=0;	
 		/* run through each reaction rule to generate possible reactions */
-		//cout<<"Rtlist size: "<<Rtlist.size()<<endl;
+		cout<<"Rtlist size: "<<Rtlist.size()<<endl;
 		for (int i=0;i<Rtlist.size();i++)
 		{
 			vector<Molecule> reactants;
@@ -87,7 +87,7 @@ void rxn_net_gen::GenerateNetwork()
 				matches.push_back(checkmatch(reactants,i,0));//first check if the molecule can be the first reactant. 
 				
 				/*Consider different types of rules. Case 1- rule is unimolecular. Proceed with creating a reaction object since the reactant already has the requisite pattern.*/
-				
+				cout<<"molecularity: "<<Rtlist[i].get_molecularity()<<endl;
 				if (Rtlist[i].get_molecularity()==1)
 					GenerateMonoMolecularRxns(i, reactants, matches);
 				else //for reactions that are bimolecular
@@ -108,18 +108,19 @@ void rxn_net_gen::GenerateNetwork()
 		}
 	
 	}
-	//cout<<"Done till here!"<<endl;
+	cout<<"Done till here!"<<endl;
 
 	DoPONALumping();
 	DoMoreLumping();
 	if (LumpStrat.shoudLump()) LumpReactions();
 	PrintLumps();
 	printOutputInfo();
+	cout<<"123"<<endl;
 	if (shouldCalcThermo) calculateThermoValues();
-
+    
 	cout<<"Network generation completed"<<endl;
 	
-	//Py_Finalize();
+	
 
 }
 
@@ -145,6 +146,7 @@ void rxn_net_gen::AddGlobalConstraints(ConstrPtr global)
 void rxn_net_gen::AddLumpingStrategy(LumpingStrategy& Strat)
 {
 	LumpStrat = Strat;
+	cout<<"lumping?"<<LumpStrat.shoudLump()<<endl;
 }
 
 void rxn_net_gen::AddCompositeAtoms(vector<string>& compAtoms)
@@ -172,13 +174,13 @@ bool rxn_net_gen::setInitialReactants()
 		Update unprocessed mol with the info. The rank is set to be zero. Also start lumping if required*/
 		Molecule mol ((*it),moleculesize((*it)));
 		mol.unique_smiles();
-		//cout<<"unique smiles is1 "<<mol.moleculestring()<<endl;
+		cout<<"unique smiles is1 "<<mol.moleculestring()<<endl;
 		pair<string, int> error = mol.checkValencyError();
 		if (error.second==0)
 		{
 			
-			//cout<<"IN here!"<<endl;
-			//cout<<"r: "<<globalconstraintcheck(mol)<<endl;
+			cout<<"IN here!"<<endl;
+			cout<<"r: "<<globalconstraintcheck(mol)<<endl;
 			if (globalconstraintcheck(mol))
 			{
 				string * molptr = StringRegistry::getStringPointer(mol.moleculestring());
@@ -190,7 +192,7 @@ bool rxn_net_gen::setInitialReactants()
 				cout<<*molptr<<endl;
 				
 				InitialReactants.insert(molptr);
-				//cout<<"In here"<<endl;
+				cout<<"In here"<<endl;
 				if (LumpStrat.shoudLump())
 				{
 					LumpMolecule(mol,molptr);
@@ -422,17 +424,19 @@ void rxn_net_gen::GenerateBimolecularRxns(int i, std::vector<Molecule> & reactan
 		}
 												
 		patt_count++;
-
-		/*having checked for all reactions wherein the molecule is first reactant, we look for those where the molecule is the second reactant. This swapping ensures that possible reactions
-		with a second molecule, say M2, not yet generated, are not missed; when M2 is eventually generated, it's reaction with the current molecule will be taken care of while checking for its reactions*/
+        cout<<"Here!!!"<<endl;
+		///*having checked for all reactions wherein the molecule is first reactant, we look for those where the molecule is the second reactant. This swapping ensures that possible reactions
+		//with a second molecule, say M2, not yet generated, are not missed; when M2 is eventually generated, it's reaction with the current molecule will be taken care of while checking for its reactions*/
 		matches.push_back(checkmatch(reactants,i,1));//find out all the matches of the second pattern in the molecule			
 
 		if (matches.back().number_of_matches()>0 && !Rtlist[i].isSelfRxnOnly)
 		{
+			cout<<"Here3!!"<<endl;
 			reactants.pop_back();//we remove the reactant so that we can swap the order of reactants and put hte molecule as second reactant
 				
 			if (!Rtlist[i].IntraMolecularRxnOnly)
 			{
+				cout<<"Here3.5!!"<<endl;
 				ProcessedRuleVector[patt_count].push_back(pair<Molecule*, Patternmatch>(processedmol.back(), matches.back()));
 						
 				if (ProcessedRuleVector[patt_count-1].size()>0)
@@ -453,8 +457,12 @@ void rxn_net_gen::GenerateBimolecularRxns(int i, std::vector<Molecule> & reactan
 						{
 							if (check_combined_match(reactants,i))
 							{
-								
+								cout<<"Here3.75!!"<<endl;
+								cout<<"i: "<<i<<endl;
+								cout<<"reactants: "<<reactants.size()<<endl;
+								cout<<"matches: "<<matches2.size()<<endl;
 								Reaction React(reactants,Rtlist[i], matches2);
+								cout<<"Here3.78!!"<<endl;
 								add_unique_molecules_reactions(React,i,false);
 							}
 							/*NOTE: ProcessedRuleVector has been updated with info regarding the current molecule can participate as either of the pattern. So the case of A+A -->products is taken care of here. 
@@ -467,7 +475,7 @@ void rxn_net_gen::GenerateBimolecularRxns(int i, std::vector<Molecule> & reactan
 			else
 			{
 				/*if the reaction rule is meant ONLY as intramolecular*/
-				
+				cout<<"In here!!!!"<<endl;
 				if (MatchesFirstPattern)//checks that the molecule matches both patterns!
 				{
 					
@@ -485,6 +493,7 @@ void rxn_net_gen::GenerateBimolecularRxns(int i, std::vector<Molecule> & reactan
 				}
 			}			
 		}
+		cout<<"Here4!!"<<endl;
 		if (Rtlist[i].isSelfRxnOnly && matches.front().number_of_matches()>0 && matches.back().number_of_matches()>0)
 		{
 			reactants.clear();
@@ -497,7 +506,7 @@ void rxn_net_gen::GenerateBimolecularRxns(int i, std::vector<Molecule> & reactan
 				add_unique_molecules_reactions(React,i,false);
 			}		
 		}
-
+        cout<<"Here5!!"<<endl;
 		patt_count++;
 	}
 	catch(pair<string,string> err)
@@ -599,17 +608,17 @@ rxn_net_gen::rxn_net_gen(rxn_net_gen * Network, LumpingStrategy & Strat)
 
 Patternmatch rxn_net_gen::checkmatch(vector<Molecule> & M, int & i, int j)
 {
-	//cout<<"In checkmatch here!"<<endl;
+	cout<<"In checkmatch here!"<<endl;
 	
 	//checks if reaction constraints are satisfied and then finds all patterns! 
 	bool result = true;
 	//Patternmatch P;
 	if (j==0)
-    	//result = check_reactant_constraint0(M[0], i, 0);
-		result = (Rtlist[i].RxnConstraints.front())(M[0]);
+    	result = check_reactant_constraint0(M[0], i, 0);
+		//result = (Rtlist[i].RxnConstraints.front())(M[0]);
 	else 
-		//result = check_reactant_constraint1(M[0], i, 1);
-		result = (Rtlist[i].RxnConstraints.back())(M[0]);
+		result = check_reactant_constraint1(M[0], i, 1);
+		//result = (Rtlist[i].RxnConstraints.back())(M[0]);
 	if (result)
 	{
 		return(check_reactant_pattern(M[0],Rtlist[i].reactant_pattern[j]));
@@ -620,13 +629,18 @@ bool rxn_net_gen::check_combined_match(std::vector<Molecule> & M, int &i)
 {
 	//checks if combined constraints are satisfied.
 	//returns true if the rule allows only/ also intramolecular reactions.. for cases of A+A reacting, I take care of it in Reactions' methods.
-	if (Rtlist[i].CombinedConstraint!=NULL)
+	//if (Rtlist[i].CombinedConstraint!=NULL)
+	if (check_combined_constraints_for_Rtlist(i)!=NULL)
 	{
+		cout<<"Passed the combined constraint size"<<endl;
 		if ((Rtlist[i].isIntraMolecularAlso() || Rtlist[i].isIntraMolecularOnly()) && (M[0].moleculestring()==M[1].moleculestring()))
 			return true;
 		else
-			//return check_combined_constraint(M[0], M[1], i);
-			return (Rtlist[i].CombinedConstraint)(M[0],M[1]);
+		{
+			cout<<"calling combined constraint"<<endl;
+			return check_combined_constraint(M[0], M[1], i);
+			//return (Rtlist[i].CombinedConstraint)(M[0],M[1]);
+		}
 	}	
 	else return true;
 	
@@ -642,18 +656,19 @@ Patternmatch rxn_net_gen::check_reactant_pattern(Molecule & Molec, Substructure 
 
 bool rxn_net_gen::globalconstraintcheck(Molecule &Molec)
 {
-	//bool result = check_global_constraints(Molec);
-	//cout<<"After checking constraint"<<endl;
-	//cout<<"Result is: "<<result<<endl;
-	//return result;
-	return (GlobalConstraints)(Molec);
+	bool result = check_global_constraints(Molec);
+	cout<<"After checking constraint"<<endl;
+	cout<<"Result is: "<<result<<endl;
+	return result;
+	//return (GlobalConstraints)(Molec);
 }
 
 
 bool rxn_net_gen::check_product_constraints(Molecule& M, int i)
 {	
-	//return check_product_constraint(M, i);
-	return (Rtlist[i].ProductConstraints)(M);
+	cout<<"Calling product constraints"<<endl;
+	return check_product_constraint(M, i);
+	//return (Rtlist[i].ProductConstraints)(M);
 }
 
 
@@ -671,7 +686,7 @@ void rxn_net_gen::add_unique_molecules_reactions(Reaction & React, int RtypeInde
 				if it occurs already, increase the frequency
 				if they do not occur already, add the new reactions
 	*/	
-	
+	cout<<"IN here 3.8!!"<<endl;
 	vector<string> BadMolecules;//stores strings of those molecules that fail the Global constraints check! 
 
 	map<int,int> ReactToAllReactions;//tells the index of the ith generated rxn in React in AllReactions (note some reactions in React may not be added into AllReactions!)
@@ -1047,7 +1062,7 @@ void rxn_net_gen::GetProductParentsInfoForRxn(generated_rxn& current_rxn, map<in
 
 void rxn_net_gen::print_rxnlist()
 {
-	
+	cout<<"Here12345"<<endl;
 	cout<<"size in rxn_list: "<<inputStrings.size()<<endl;
 	
 	
@@ -1126,6 +1141,7 @@ void rxn_net_gen::print_rxnlist()
 
 	}
 	speciesFile.close();
+    Py_Finalize();
 
 	cout<<"Completed writing reactions and species lists into file"<<endl;
 }
