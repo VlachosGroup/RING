@@ -33,3 +33,7 @@
 
 # Runtime files
 */output.*
+*/Lumps.txt
+*/species.txt
+*/reactions_list.txt
+

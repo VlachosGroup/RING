@@ -29,7 +29,7 @@ using std::find_if;
 
 void rxn_net_gen::GenerateNetwork()
 {
-	cout<<"Here!"<<endl;
+	//cout<<"Here!"<<endl;
 	// Py_Initialize();
 	
 	
@@ -37,9 +37,9 @@ void rxn_net_gen::GenerateNetwork()
 	// c.vorpalness = 3;
 	// grail(&c);
 	
-	cout<<"After cython code"<<endl;
+	//cout<<"After cython code"<<endl;
 	if (!setInitialReactants()) throw 1;	
-	cout<<"Now here!"<<endl;
+	//cout<<"Now here!"<<endl;
 	vector<vector<pair<Molecule*,Patternmatch> > > ProcessedRuleVector;
 	///*this vector basically stores the patterns of the molecules of the processed molecule list that are potential partners of bimolecular reaction types.
 	//Note that each of these rules have two reactants and hence take up two elements of the outermost vector. For e.g. if there are 10 bimolecular rules, 
@@ -56,7 +56,7 @@ void rxn_net_gen::GenerateNetwork()
 	int rxncount = 0;
 	while (unprocessedmol.size()>0)
 	{
-		cout<<"Size of unprocessed mol: "<<unprocessedmol.size()<<endl;
+		//cout<<"Size of unprocessed mol: "<<unprocessedmol.size()<<endl;
 		if (AllReactions.size()>rxncount*1000)
 		{
 			cout<<"reactions generated: "<<AllReactions.size()<<endl;
@@ -73,7 +73,7 @@ void rxn_net_gen::GenerateNetwork()
 				
 		int patt_count=0;	
 		/* run through each reaction rule to generate possible reactions */
-		cout<<"Rtlist size: "<<Rtlist.size()<<endl;
+		//cout<<"Rtlist size: "<<Rtlist.size()<<endl;
 		for (int i=0;i<Rtlist.size();i++)
 		{
 			vector<Molecule> reactants;
@@ -108,7 +108,7 @@ void rxn_net_gen::GenerateNetwork()
 		}
 	
 	}
-	cout<<"Done till here!"<<endl;
+	//cout<<"Done till here!"<<endl;
 
 	DoPONALumping();
 	DoMoreLumping();
@@ -172,13 +172,13 @@ bool rxn_net_gen::setInitialReactants()
 		Update unprocessed mol with the info. The rank is set to be zero. Also start lumping if required*/
 		Molecule mol ((*it),moleculesize((*it)));
 		mol.unique_smiles();
-		cout<<"unique smiles is1 "<<mol.moleculestring()<<endl;
+		//cout<<"unique smiles is1 "<<mol.moleculestring()<<endl;
 		pair<string, int> error = mol.checkValencyError();
 		if (error.second==0)
 		{
 			
-			cout<<"IN here!"<<endl;
-			cout<<"r: "<<globalconstraintcheck(mol)<<endl;
+			//cout<<"IN here!"<<endl;
+			//cout<<"r: "<<globalconstraintcheck(mol)<<endl;
 			if (globalconstraintcheck(mol))
 			{
 				string * molptr = StringRegistry::getStringPointer(mol.moleculestring());
@@ -190,7 +190,7 @@ bool rxn_net_gen::setInitialReactants()
 				cout<<*molptr<<endl;
 				
 				InitialReactants.insert(molptr);
-				cout<<"In here"<<endl;
+				//cout<<"In here"<<endl;
 				if (LumpStrat.shoudLump())
 				{
 					LumpMolecule(mol,molptr);
@@ -599,17 +599,17 @@ rxn_net_gen::rxn_net_gen(rxn_net_gen * Network, LumpingStrategy & Strat)
 
 Patternmatch rxn_net_gen::checkmatch(vector<Molecule> & M, int & i, int j)
 {
-	cout<<"In checkmatch here!"<<endl;
+	//cout<<"In checkmatch here!"<<endl;
 	
 	//checks if reaction constraints are satisfied and then finds all patterns! 
 	bool result = true;
 	//Patternmatch P;
 	if (j==0)
-    	result = check_reactant_constraint0(M[0], i, 0);
-		//result = (Rtlist[i].RxnConstraints.front())(M[0]);
+    	//result = check_reactant_constraint0(M[0], i, 0);
+		result = (Rtlist[i].RxnConstraints.front())(M[0]);
 	else 
-		result = check_reactant_constraint1(M[0], i, 1);
-		//result = (Rtlist[i].RxnConstraints.back())(M[0]);
+		//result = check_reactant_constraint1(M[0], i, 1);
+		result = (Rtlist[i].RxnConstraints.back())(M[0]);
 	if (result)
 	{
 		return(check_reactant_pattern(M[0],Rtlist[i].reactant_pattern[j]));
@@ -625,8 +625,8 @@ bool rxn_net_gen::check_combined_match(std::vector<Molecule> & M, int &i)
 		if ((Rtlist[i].isIntraMolecularAlso() || Rtlist[i].isIntraMolecularOnly()) && (M[0].moleculestring()==M[1].moleculestring()))
 			return true;
 		else
-			return check_combined_constraint(M[0], M[1], i);
-			//return (Rtlist[i].CombinedConstraint)(M[0],M[1]);
+			//return check_combined_constraint(M[0], M[1], i);
+			return (Rtlist[i].CombinedConstraint)(M[0],M[1]);
 	}	
 	else return true;
 	
@@ -642,18 +642,18 @@ Patternmatch rxn_net_gen::check_reactant_pattern(Molecule & Molec, Substructure 
 
 bool rxn_net_gen::globalconstraintcheck(Molecule &Molec)
 {
-	bool result = check_global_constraints(Molec);
-	cout<<"After checking constraint"<<endl;
-	cout<<"Result is: "<<result<<endl;
-	return result;
-	//return (GlobalConstraints)(Molec);
+	//bool result = check_global_constraints(Molec);
+	//cout<<"After checking constraint"<<endl;
+	//cout<<"Result is: "<<result<<endl;
+	//return result;
+	return (GlobalConstraints)(Molec);
 }
 
 
 bool rxn_net_gen::check_product_constraints(Molecule& M, int i)
 {	
-	return check_product_constraint(M, i);
-	//return (Rtlist[i].ProductConstraints)(M);
+	//return check_product_constraint(M, i);
+	return (Rtlist[i].ProductConstraints)(M);
 }
 
 
