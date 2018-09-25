@@ -1,27 +1,15 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-//#include <cstring>
-//#include <sstream>
 #include <map>
 #include <set>
 #include <vector>
 #include <utility>
-//#include <cctype>
-//#include <deque>
-//#include <bitset>
-//#include <iterator>
-//using namespace std;
-//
-//#include <stdio.h>
-//#include <stdlib.h>
 #include <cmath>
+
 #include "pathways.h"
 #include "molecule.h"
 #include "qsar.h"
-//#include "kinetics.h"
-//#include "additionalfunc.h"
-//#include "stringreg.h"
 
 using std::string; using std::map; using std::multimap; using std::vector; 
 using std::pair; using std::set;

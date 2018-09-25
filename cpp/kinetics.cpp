@@ -1,30 +1,17 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-//#include <cstring>
-//#include <sstream>
 #include <vector>
 #include <map>
 #include <utility>
-//#include <cctype>
-//#include <queue>
-//#include <algorithm>
 #include <set>
 #include <cmath>
-//
-//
-//
-//#include "Classheader.h"
+
 #include "kinetics.h"
 #include "additionalfunc.h"
-//#include "stringreg.h"
-//#include "rng.h"
-//
+
 #include <idas/idas.h>
 #include <idas/idas_dense.h>
-//#include <idas/idas_spgmr.h>
-//#include <nvector/nvector_serial.h>
-//#include <sundials/sundials_math.h>
 #include <sundials/sundials_types.h>
 
 #define Ith(v,i)    NV_Ith_S(v,i)  

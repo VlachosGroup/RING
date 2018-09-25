@@ -1,24 +1,18 @@
 #include <iostream>
 #include <fstream>
-#include <string>
-#include <cstring>
-#include <sstream>
 #include <map>
 #include <vector>
-#include <cctype>
-#include <queue>
-#include <algorithm>
 #include <set>
-#include <cmath>
-using namespace std;
+#include <utility>
 
-
-
-#include "Classheader.h"
-#include "kinetics.h"
+#include "external_io.h"
 #include "additionalfunc.h"
 #include "stringreg.h"
 
+using std::map; using std::multimap; using std::set; using std::string; 
+using std::vector; using std::pair; 
+using std::cout; using std::endl; 
+using std::ofstream; using std::ifstream; using std::ios; 
 
 
 CHEMKinFiles::CHEMKinFiles(rxn_net_gen* net, set<int>& cpTemps, vector<KineticParamPtr>& kineticFns, double GasConstant, map<string, double>& Sites, multimap<string,string>& Denticity)

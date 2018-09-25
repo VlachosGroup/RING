@@ -1,43 +1,13 @@
 #ifndef PATHWAYS_H
 #define PATHWAYS_H
 
-//#include <iostream>
-//#include <fstream>
 #include <string>
-//#include <cstring>
-//#include <sstream>
 #include <vector>
-//#include <list>
-//#include <set>
 #include <map>
 #include <utility>
-//#include <queue>
-//#include <deque>
-//#include <algorithm>
-//using namespace std;
-//
-//#include <stdio.h>
-//#include <stdlib.h>
-//
-//#include <idas/idas.h>
-//#include <idas/idas_dense.h>
-//#include <nvector/nvector_serial.h>
-//#include <sundials/sundials_math.h>
-//#include <sundials/sundials_types.h>
-//
-//#include "common.h"
-//#include "clonable.h"
-//#include "element.h"
-//#include "atom.h"
-//#include "atomcontainer.h"
-//#include "automorphs.h"
-//#include "substructure.h"
-//#include "patternmatch.h"
+
 #include "kinetics.h"
 #include "molecule.h"
-//#include "reaction.h"
-//#include "lumping.h"
-//#include "groupadditivity.h"
 #include "generated_rxn.h"
 #include "additionalfunc.h"
 #include "rng.h"

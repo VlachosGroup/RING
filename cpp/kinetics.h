@@ -6,41 +6,12 @@
 #include <set>
 #include <map>
 #include <utility>
-//
-//#include <idas/idas.h>
-//#include <idas/idas_dense.h>
-//#include <nvector/nvector_serial.h>
-//#include <sundials/sundials_math.h>
-//#include <sundials/sundials_types.h>
-//#include "Classheader.h"
-//#include "common.h"
-//#include "clonable.h"
-//#include "element.h"
-//#include "atom.h"
-//#include "atomcontainer.h"
-//#include "automorphs.h"
-//#include "substructure.h"
-//#include "patternmatch.h"
+
 #include "molecule.h"
-//#include "reaction.h"
-//#include "lumping.h"
-//#include "groupadditivity.h"
 #include "generated_rxn.h"
 #include "rng.h"
 
-//#include <queue>
-//#include <deque>
-//#include <algorithm>
-//using namespace std;
-//
-//#include <stdio.h>
-//#include <stdlib.h>
-//
-//#include <idas/idas.h>
-//#include <idas/idas_dense.h>
 #include <nvector/nvector_serial.h>
-//#include <sundials/sundials_math.h>
-//#include <sundials/sundials_types.h>
 
 
 class KineticsEstimates 
