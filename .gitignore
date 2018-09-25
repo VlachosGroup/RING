@@ -47,3 +47,6 @@ examples/lumpedNetwork.txt
 examples/LumpedReconstructedNetwork.txt
 examples/LumpSpecies.txt
 examples/naphthenicsfile.txt
+
+# Python byte compiled files
+*.pyc
