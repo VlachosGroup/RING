@@ -1,28 +1,28 @@
 #ifndef OUTPUT_H
 #define OUTPUT_H
 
-#include <iostream>
-#include <fstream>
-#include <string>
-#include <cstring>
-#include <sstream>
-#include <vector>
-#include <list>
-#include <set>
-#include <map>
-#include <queue>
-#include <deque>
-#include <algorithm>
+// #include <iostream>
+// #include <fstream>
+// #include <string>
+// #include <cstring>
+// #include <sstream>
+// #include <vector>
+// #include <list>
+// #include <set>
+// #include <map>
+// #include <queue>
+// #include <deque>
+// #include <algorithm>
 //using namespace std;
 
-#include <stdio.h>
-#include <stdlib.h>
+// #include <stdio.h>
+// #include <stdlib.h>
 
-#include <idas/idas.h>
-#include <idas/idas_dense.h>
-#include <nvector/nvector_serial.h>
-#include <sundials/sundials_math.h>
-#include <sundials/sundials_types.h>
+// #include <idas/idas.h>
+// #include <idas/idas_dense.h>
+// #include <nvector/nvector_serial.h>
+// #include <sundials/sundials_math.h>
+// #include <sundials/sundials_types.h>
 
 #include "common.h"
 #include "clonable.h"
@@ -42,6 +42,9 @@
 #include "qsar.h"
 #include "pathways.h"
 #include "mechanisms.h"
+#include "external_io.h"
+#include "additionalfunc.h"
+#include "stringreg.h"
 
 enum AstNodeType
 {
