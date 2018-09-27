@@ -35,16 +35,11 @@ def patternsize(molstring):
 cdef class LumpingStrategy:
     cdef C_LumpingStrategy* _ptr
     
-<<<<<<< HEAD
     def __cinit__(self, lumpconstraints):
         self._ptr = new C_LumpingStrategy(lumpconstraints)
-=======
-    def __cinit__(self, x):
-        self._ptr = new C_LumpingStrategy(x)
 
     def __dealloc__(self):
         del self._ptr
->>>>>>> 7810cf1da97a3209f8195f8e8ac658c7bbeb59ea
         
     def should_lump(self):
         return self._ptr[0].shoudLump()
@@ -53,27 +48,17 @@ cdef class LumpingStrategy:
 cdef class Molecule:
     cdef C_Molecule* _ptr
     
-<<<<<<< HEAD
-    def __cinit__(self, molstring, stringsize):
-        if type(molstring) is unicode:
-            molstring = (<unicode>molstring).encode('utf8')
-        stringsize = <int>stringsize
-        self._ptr = new C_Molecule(molstring,stringsize)
+    def __cinit__(self, molecule_string, string_size):
+        if type(molecule_string) is unicode:
+            molecule_string = (<unicode>molecule_string).encode('utf8')
+        string_size = <int>string_size
+        self._ptr = new C_Molecule(molecule_string,string_size)
         
-    def __init__(self, molstring,stringsize):
-=======
-    def __cinit__(self, smile_string, size):
-        if type(smile_string) is unicode:
-            smile_string = (<unicode>smile_string).encode('utf8')
-        size = <int>size
-        self._ptr = new C_Molecule(smile_string, size)
+    def __init__(self, molecule_string,string_size):
+        pass
 
     def __dealloc__(self):
         del self._ptr
-        
-    def __init__(self, smile_string, size):
->>>>>>> 7810cf1da97a3209f8195f8e8ac658c7bbeb59ea
-        pass
     
     def printmol(self):
         print("in molecule")
@@ -83,22 +68,15 @@ cdef class Molecule:
 cdef class Substructure:
     cdef C_Substructure* _ptr
     
-<<<<<<< HEAD
-    def __cinit__(self, molstring, stringsize):
-        if type(molstring) is unicode:
-            molstring = (<unicode>molstring).encode('utf8')
-        self._ptr = new C_Substructure(molstring,stringsize)
-=======
-    def __cinit__(self, x, y):
-        if type(x) is unicode:
-            x = (<unicode>x).encode('utf8')
-        self._ptr = new C_Substructure(x,y)
+    def __cinit__(self, molecule_string, string_size):
+        if type(molecule_string) is unicode:
+            molecule_string = (<unicode>molecule_string).encode('utf8')
+        self._ptr = new C_Substructure(molecule_string,string_size)
 
     def __dealloc__(self):
         del self._ptr
->>>>>>> 7810cf1da97a3209f8195f8e8ac658c7bbeb59ea
     
-    def __init__(self, molstring, stringsize):
+    def __init__(self, molecule_string, string_size):
         pass
 
 cdef class Patternmatch:
@@ -117,18 +95,7 @@ cdef class Patternmatch:
     
     def __init__(self, molecule, substructure, constraint_index):
         pass
-<<<<<<< HEAD
 
-    def __cinit__(self):
-        self._ptr = new C_Patternmatch()
-=======
-#    
-#    
-#
-#    def __cinit__(self):
-#        self._ptr = new C_Patternmatch()
->>>>>>> 7810cf1da97a3209f8195f8e8ac658c7bbeb59ea
-#        
     def get_distinct_matches(self):
         return self._ptr[0].GetDistinctMatches()
 
