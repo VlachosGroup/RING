@@ -26,21 +26,17 @@ ReactionReactantConstraints = []
 ReactionProductConstraints = []
 ReactionCombinedConstraints = []
 
-#cdef public struct PyArrayObject:
-#    C_Molecule mol
-
-
-def patternsize(s1):
-    if type(s1) is unicode:
-        cpp_str = (<unicode>s1).encode('utf8')
+def patternsize(molstring):
+    if type(molstring) is unicode:
+        cpp_str = (<unicode>molstring).encode('utf8')
     rval = c_patternsize(cpp_str)
     return rval
 
 cdef class LumpingStrategy:
     cdef C_LumpingStrategy* _ptr
     
-    def __cinit__(self, x):
-        self._ptr = new C_LumpingStrategy(x)
+    def __cinit__(self, lumpconstraints):
+        self._ptr = new C_LumpingStrategy(lumpconstraints)
         
     def should_lump(self):
         return self._ptr[0].shoudLump()
@@ -49,13 +45,13 @@ cdef class LumpingStrategy:
 cdef class Molecule:
     cdef C_Molecule* _ptr
     
-    def __cinit__(self, x, y):
-        if type(x) is unicode:
-            x = (<unicode>x).encode('utf8')
-        y = <int>y
-        self._ptr = new C_Molecule(x,y)
+    def __cinit__(self, molstring, stringsize):
+        if type(molstring) is unicode:
+            molstring = (<unicode>molstring).encode('utf8')
+        stringsize = <int>stringsize
+        self._ptr = new C_Molecule(molstring,stringsize)
         
-    def __init__(self, x, y):
+    def __init__(self, molstring,stringsize):
         pass
     
     def printmol(self):
@@ -64,12 +60,12 @@ cdef class Molecule:
 cdef class Substructure:
     cdef C_Substructure* _ptr
     
-    def __cinit__(self, x, y):
-        if type(x) is unicode:
-            x = (<unicode>x).encode('utf8')
-        self._ptr = new C_Substructure(x,y)
+    def __cinit__(self, molstring, stringsize):
+        if type(molstring) is unicode:
+            molstring = (<unicode>molstring).encode('utf8')
+        self._ptr = new C_Substructure(molstring,stringsize)
     
-    def __init__(self, x, y):
+    def __init__(self, molstring, stringsize):
         pass
 
 cdef class Patternmatch:
@@ -85,9 +81,7 @@ cdef class Patternmatch:
     
     def __init__(self, molecule, substructure, constraint_index):
         pass
-#    
-#    
-#
+
     def __cinit__(self):
         self._ptr = new C_Patternmatch()
 #        
@@ -113,22 +107,22 @@ cdef class ReactionType:
     def add_reactant_constraints(self, reactant_const):
         self.RxnConstraints = reactant_const
 
-    def disconnect_bond(self, x, y):
-        self._ptr[0].disconnect_bond(x, y)
+    def disconnect_bond(self, indices1, indices2):
+        self._ptr[0].disconnect_bond(indices1, indices2)
         
-    def connect_bond(self, x, y):
-        self._ptr[0].connect_bond(x, y)
+    def connect_bond(self, indices1, indices2):
+        self._ptr[0].connect_bond(indices1, indices2)
         
-    def increaseBO(self, x, y, z):
-        self._ptr[0].increaseBO(x, y, z)
+    def increaseBO(self, indices1, indices2, bondorder):
+        self._ptr[0].increaseBO(indices1, indices2, bondorder)
         
-    def decreaseBO(self, x, y, z):
-        self._ptr[0].decreaseBO(x, y, z)
+    def decreaseBO(self, indices1, indices2, bondorder):
+        self._ptr[0].decreaseBO(indices1, indices2, bondorder)
 
-    def set_rule_name(self, x):
-        if type(x) is unicode:
-            x = (<unicode>x).encode('utf8')
-        self._ptr[0].setRuleName(x)
+    def set_rule_name(self, rulename):
+        if type(rulename) is unicode:
+            rulename = (<unicode>rulename).encode('utf8')
+        self._ptr[0].setRuleName(rulename)
          
 cdef class RxnNetGen:
     cdef C_RxnNetGen* _ptr
@@ -138,10 +132,10 @@ cdef class RxnNetGen:
     
     def add_initial_reactants(self, reactant_list):
         c_reactant_list = []
-        for i in reactant_list:
-            if type(i) is unicode:
-                i = (<unicode>i).encode('utf8')
-                c_reactant_list.append(i)
+        for reactant in reactant_list:
+            if type(reactant) is unicode:
+                reactant = (<unicode>reactant).encode('utf8')
+                c_reactant_list.append(reactant)
         self._ptr[0].AddInitialReactants(c_reactant_list)
         
     def add_reaction_rules(self, reaction_types):
@@ -160,28 +154,28 @@ cdef class RxnNetGen:
     def print_rxn_list(self):
         self._ptr[0].print_rxnlist()
         
-    def set_calc_thermo(self, x):
-        self._ptr[0].SetCalcThermo(x)
+    def set_calc_thermo(self, boolvalue):
+        self._ptr[0].SetCalcThermo(boolvalue)
         
-    def add_lumping_strategy(self, x):
-        self._ptr[0].AddLumpingStrategy(<C_LumpingStrategy?>x)
+    def add_lumping_strategy(self, lumpconstraint):
+        self._ptr[0].AddLumpingStrategy(<C_LumpingStrategy?>lumpconstraint)
         
-    def add_composite_sites(self, x):
-        self._ptr[0].AddCompositeSites(<vector[pair[string, c_SiteType] ]?>x)
+    def add_composite_sites(self, compositesites):
+        self._ptr[0].AddCompositeSites(<vector[pair[string, c_SiteType] ]?>compositesites)
         
     def check_global_constraints(self, constraint):
         global_constraint = constraint
         
-cdef public bool check_reactant_constraint0(C_Molecule mol, int x, int y):
+cdef public bool check_reactant_constraint0(C_Molecule mol, int reactiontype, int reactantindex):
 #mol is the molecule to check for
 #x is the reactiontype in list of reaction rules
 #y is going to be 0    
     print("In constraint check!")
-    print(x)
+    print(reactiontype)
     #C_ReactionType = Rtlist[x]
-    if x == 6:
+    if reactiontype == 6:
         print("found rule 6")
-        print(y)
+        print(reactantindex)
         substruct = Substructure("O1(-C2)", c_patternsize("O1(-C2)"))
         c_substruct = (<Substructure?>substruct)._ptr
         #c_mol = (<Molecule?>mol)._ptr
@@ -196,9 +190,9 @@ cdef public bool check_reactant_constraint0(C_Molecule mol, int x, int y):
             return True
         else:
             return False
-    elif x == 7:
+    elif reactiontype == 7:
         print("found rule 7")
-        print(y)
+        print(reactantindex)
         substruct = Substructure("O1(-C2)", c_patternsize("O1(-C2)"))
         c_substruct = (<Substructure?>substruct)._ptr
         #c_mol = (<Molecule?>mol)._ptr
@@ -213,21 +207,21 @@ cdef public bool check_reactant_constraint0(C_Molecule mol, int x, int y):
         print(" ")
         return True
 
-cdef public bool check_reactant_constraint1(C_Molecule mol, int x, int y):
+cdef public bool check_reactant_constraint1(C_Molecule mol, int reactiontype, int reactantindex):
     return True
     
 cdef public bool check_combined_constraint(C_Molecule mol0, C_Molecule mol1, 
-                                           int x):
+                                           int reactiontype):
     return True
 
 cdef public bool check_combined_constraint_for_reactiontype(
-        C_ReactionType reacttype, C_Molecule mol0, C_Molecule mol1):
+        C_ReactionType reactiontype, C_Molecule mol0, C_Molecule mol1):
     return True
 
-cdef public int check_combined_constraints_for_Rtlist(int x):
+cdef public int check_combined_constraints_for_Rtlist(int reactiontype):
     return 1
 
-cdef public bool check_product_constraint(C_Molecule mol, int x):
+cdef public bool check_product_constraint(C_Molecule mol, int reactiontype):
     return True
         
 cdef public struct Bunny: # public type declaration
