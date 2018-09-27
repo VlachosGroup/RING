@@ -41,6 +41,9 @@ cdef class LumpingStrategy:
     
     def __cinit__(self, x):
         self._ptr = new C_LumpingStrategy(x)
+
+    def __dealloc__(self):
+        del self._ptr
         
     def should_lump(self):
         return self._ptr[0].shoudLump()
@@ -49,17 +52,22 @@ cdef class LumpingStrategy:
 cdef class Molecule:
     cdef C_Molecule* _ptr
     
-    def __cinit__(self, x, y):
-        if type(x) is unicode:
-            x = (<unicode>x).encode('utf8')
-        y = <int>y
-        self._ptr = new C_Molecule(x,y)
+    def __cinit__(self, smile_string, size):
+        if type(smile_string) is unicode:
+            smile_string = (<unicode>smile_string).encode('utf8')
+        size = <int>size
+        self._ptr = new C_Molecule(smile_string, size)
+
+    def __dealloc__(self):
+        del self._ptr
         
-    def __init__(self, x, y):
+    def __init__(self, smile_string, size):
         pass
     
     def printmol(self):
         print("in molecule")
+
+
     
 cdef class Substructure:
     cdef C_Substructure* _ptr
@@ -68,6 +76,9 @@ cdef class Substructure:
         if type(x) is unicode:
             x = (<unicode>x).encode('utf8')
         self._ptr = new C_Substructure(x,y)
+
+    def __dealloc__(self):
+        del self._ptr
     
     def __init__(self, x, y):
         pass
@@ -82,14 +93,17 @@ cdef class Patternmatch:
         c_substruct = (<Substructure?>substructure)._ptr
         self._ptr = new C_Patternmatch(c_mol[0], c_substruct[0], 
                                        constraint_index)
+
+    def __dealloc__(self):
+        del self._ptr
     
     def __init__(self, molecule, substructure, constraint_index):
         pass
 #    
 #    
 #
-    def __cinit__(self):
-        self._ptr = new C_Patternmatch()
+#    def __cinit__(self):
+#        self._ptr = new C_Patternmatch()
 #        
     def get_distinct_matches(self):
         return self._ptr[0].GetDistinctMatches()
@@ -99,6 +113,9 @@ cdef class ReactionType:
 
     def __cinit__(self):
         self._ptr = new C_ReactionType()
+
+    def __dealloc__(self):
+        del self._ptr
         
 #    def __init__(self, constraints = 0):
 #        self.RxnConstraints = []
@@ -135,6 +152,9 @@ cdef class RxnNetGen:
     
     def __cinit__(self):
         self._ptr = new C_RxnNetGen()
+
+    def __dealloc__(self):
+        del self._ptr
     
     def add_initial_reactants(self, reactant_list):
         c_reactant_list = []
@@ -169,8 +189,8 @@ cdef class RxnNetGen:
     def add_composite_sites(self, x):
         self._ptr[0].AddCompositeSites(<vector[pair[string, c_SiteType] ]?>x)
         
-    def check_global_constraints(self, constraint):
-        global_constraint = constraint
+#    def check_global_constraints(self, constraint):
+#        global_constraint = constraint
         
 cdef public bool check_reactant_constraint0(C_Molecule mol, int x, int y):
 #mol is the molecule to check for
