@@ -35,8 +35,16 @@ def patternsize(molstring):
 cdef class LumpingStrategy:
     cdef C_LumpingStrategy* _ptr
     
+<<<<<<< HEAD
     def __cinit__(self, lumpconstraints):
         self._ptr = new C_LumpingStrategy(lumpconstraints)
+=======
+    def __cinit__(self, x):
+        self._ptr = new C_LumpingStrategy(x)
+
+    def __dealloc__(self):
+        del self._ptr
+>>>>>>> 7810cf1da97a3209f8195f8e8ac658c7bbeb59ea
         
     def should_lump(self):
         return self._ptr[0].shoudLump()
@@ -45,6 +53,7 @@ cdef class LumpingStrategy:
 cdef class Molecule:
     cdef C_Molecule* _ptr
     
+<<<<<<< HEAD
     def __cinit__(self, molstring, stringsize):
         if type(molstring) is unicode:
             molstring = (<unicode>molstring).encode('utf8')
@@ -52,18 +61,42 @@ cdef class Molecule:
         self._ptr = new C_Molecule(molstring,stringsize)
         
     def __init__(self, molstring,stringsize):
+=======
+    def __cinit__(self, smile_string, size):
+        if type(smile_string) is unicode:
+            smile_string = (<unicode>smile_string).encode('utf8')
+        size = <int>size
+        self._ptr = new C_Molecule(smile_string, size)
+
+    def __dealloc__(self):
+        del self._ptr
+        
+    def __init__(self, smile_string, size):
+>>>>>>> 7810cf1da97a3209f8195f8e8ac658c7bbeb59ea
         pass
     
     def printmol(self):
         print("in molecule")
+
+
     
 cdef class Substructure:
     cdef C_Substructure* _ptr
     
+<<<<<<< HEAD
     def __cinit__(self, molstring, stringsize):
         if type(molstring) is unicode:
             molstring = (<unicode>molstring).encode('utf8')
         self._ptr = new C_Substructure(molstring,stringsize)
+=======
+    def __cinit__(self, x, y):
+        if type(x) is unicode:
+            x = (<unicode>x).encode('utf8')
+        self._ptr = new C_Substructure(x,y)
+
+    def __dealloc__(self):
+        del self._ptr
+>>>>>>> 7810cf1da97a3209f8195f8e8ac658c7bbeb59ea
     
     def __init__(self, molstring, stringsize):
         pass
@@ -78,12 +111,23 @@ cdef class Patternmatch:
         c_substruct = (<Substructure?>substructure)._ptr
         self._ptr = new C_Patternmatch(c_mol[0], c_substruct[0], 
                                        constraint_index)
+
+    def __dealloc__(self):
+        del self._ptr
     
     def __init__(self, molecule, substructure, constraint_index):
         pass
+<<<<<<< HEAD
 
     def __cinit__(self):
         self._ptr = new C_Patternmatch()
+=======
+#    
+#    
+#
+#    def __cinit__(self):
+#        self._ptr = new C_Patternmatch()
+>>>>>>> 7810cf1da97a3209f8195f8e8ac658c7bbeb59ea
 #        
     def get_distinct_matches(self):
         return self._ptr[0].GetDistinctMatches()
@@ -93,6 +137,9 @@ cdef class ReactionType:
 
     def __cinit__(self):
         self._ptr = new C_ReactionType()
+
+    def __dealloc__(self):
+        del self._ptr
         
 #    def __init__(self, constraints = 0):
 #        self.RxnConstraints = []
@@ -129,6 +176,9 @@ cdef class RxnNetGen:
     
     def __cinit__(self):
         self._ptr = new C_RxnNetGen()
+
+    def __dealloc__(self):
+        del self._ptr
     
     def add_initial_reactants(self, reactant_list):
         c_reactant_list = []
@@ -163,8 +213,8 @@ cdef class RxnNetGen:
     def add_composite_sites(self, compositesites):
         self._ptr[0].AddCompositeSites(<vector[pair[string, c_SiteType] ]?>compositesites)
         
-    def check_global_constraints(self, constraint):
-        global_constraint = constraint
+#    def check_global_constraints(self, constraint):
+#        global_constraint = constraint
         
 cdef public bool check_reactant_constraint0(C_Molecule mol, int reactiontype, int reactantindex):
 #mol is the molecule to check for
