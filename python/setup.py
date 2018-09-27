@@ -26,9 +26,9 @@ react_srcs = react_cpp_sources + [
 
 
 react_ext = Extension('pyring.react', 
-                          react_srcs,
-                          include_dirs = ['../cpp']
-                          )
+                      react_srcs,
+                      include_dirs = ['../cpp']
+                     )
 
 #react_ext = Extension('pyring.reaction', 
 #                      sources = [
