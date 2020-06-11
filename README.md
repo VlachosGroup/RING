@@ -13,7 +13,7 @@ Instructions to install RING
     - Projects – contains a linux script and a windows batch file for running RING. This space is also
                where the outputs of RING.
   
-  The parent folder contains the license text. RING is available under GNU Lesser GPL 2.1
+    The parent folder contains the license text. RING is available under GNU Lesser GPL 2.1
   
 2) Install that Java JRE (http://www.java.com/ ) is installed
 
