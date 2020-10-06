@@ -1,0 +1,194 @@
+//reactant definition (note that two slashes mean that everything in that line following it is taken as a comment
+input reactant "O1C(CO)(O)C(O)C(O)C1(CO)"
+input reactant "[H+]"
+
+
+//definition of a characteristic called primaryCarbenium
+
+define characteristic primaryCarbenium on mol
+{ 
+  fragment a{
+	C+ labeled 1 {! connected to >1 heavy atom}
+	}
+	
+  mol contains a
+}
+
+
+
+//global constraints specification
+global constraints on  Molecule
+{
+	//declaration of a fragment named 'a'
+	fragment a
+	{
+		C+ labeled 1
+		$ labeled 2 double bond to 1
+	}
+	//molecule does not contain C+=$, where $ is any atom
+	! Molecule contains a
+	
+	//Molecule.size < 15 //molecule size is less than 10 (number of heavy, non hydrogen atoms is less than 10)
+	Molecule.size between 1 and 15
+	
+	//Molecule.charge >-2 && Molecule.charge <2 //(charge is -1, 0, or 1)
+	Molecule.charge between -1 and 1
+	
+	fragment b
+	{
+		C labeled c1
+		C labeled c2 double bond to c1
+		X labeled x1 double bond to c2
+	}
+	! Molecule contains >= 1 of b
+}
+
+//Protonation of C=C 
+
+rule CCProtonation{
+reactant r1 {
+	C labeled c1
+	C labeled c2 double bond to c1
+} 
+
+positive reactant r2{
+	H+ labeled h1}
+	
+constraints {r1.charge = 0 && r1.size <15}
+
+form bond (c1, h1)
+decrease bond order (c1,c2)
+modify atomtype (c2,C+)
+modify atomtype (h1, H)
+//product constraints on molecule {
+	//! molecule is primaryCarbenium}//protonation should not lead to a primary carbenium ion! 
+}
+
+//Protonation of an alcoholic group of a cyclic molecule
+rule alcoholprot{
+neutral reactant r1{
+	C labeled c1
+	nonringatom O labeled o1 single bond to c1 //{! connected to >1 heavy atom with any bond}
+}
+
+positive reactant proton{
+	H+ labeled h1
+}
+
+constraints {
+		(r1.size <15) && (r1.size >2)//the language cannot pick up <= in molecule constraints, for a really silly reason. I will fix this soon
+}
+
+form bond (o1, h1)
+modify atomtype (o1, O+)
+modify atomtype (h1, H)
+}
+
+//Dehydration of oxonium species to form carbenium ion
+
+rule dehydration{
+reactant r1 {
+	C labeled c1 //{connected to 2 C}
+	O+ labeled o1 single bond to c1
+}
+constraints {
+	r1.charge = 1
+	r1.size <15
+}
+break bond (c1, o1)
+modify atomtype (c1, C+)
+modify atomtype (o1,O)
+} 
+
+//Deprotonation of carbenium to form C=C
+rule deProt{
+positive reactant r1 {
+	C+ labeled c1
+	C labeled c2 single bond to c1 {!connected to >=1 O with double bond}
+	H labeled h1 single bond to c2}
+constraints{ r1.size < 15}
+break bond (c2, h1)
+increase bond order (c1, c2)
+modify atomtype (c1, C)
+modify atomtype (h1, H+)
+
+}
+
+
+//Hydride shifts
+
+rule Hshift {
+positive reactant r1 {
+	C+ labeled c1 
+	C labeled c2 single bond to c1 {! connected to >=1 O with double bond}
+	H labeled h1 single bond to c2
+	}
+constraints {r1.size < 15}
+
+break bond (h1,c2)
+form bond (c1,h1)
+modify atomtype (c1,C)
+modify atomtype (c2, C+)
+}
+
+//Deprot to form ketone
+rule deProtToKetone{
+reactant r1 {
+	C+ labeled c1
+	O labeled o1 single bond to c1
+	H labeled h1 single bond to o1
+}
+constraints{
+	r1.charge =1 && r1.size <15
+}
+break bond (o1,h1)
+increase bond order (c1, o1)
+modify atomtype (c1,C)
+modify atomtype (h1, H+)
+}
+
+//Allylic rearrangement
+rule allylrearrangement {
+reactant r1 {
+	C+ labeled c1 
+	C labeled c2 single bond to c1 
+	C labeled c3 double bond to c2}
+constraints {r1.size <15 && r1.charge =1}
+
+decrease bond order (c2,c3)
+increase bond order (c1,c2)
+modify atomtype (c1,C)
+modify atomtype (c3,C+)
+}
+
+//end of rules! 
+
+
+lump all isomers {
+	represent acyclic with farthest apart
+	represent cyclic with farthest apart
+	lump paraffins to most branched
+	lump olefins to most branched
+	lump naphthenics to most branched
+	lump aromatics to most branched
+}
+
+
+find pathways to mol{
+	mol is "OCc1oc(C=O)cc1"
+	} constraints {
+	maximum length 11
+	contains <=2 rule Hshift
+	eliminate similar pathways
+	} store in "HMFPathways.txt"
+	
+find all mol{
+		mol.size < 15 && mol is aromatic && mol.charge = 0
+		fragment f{
+			C labeled c1
+			O labeled o1 double bond to c1
+		}
+		!mol contains >=1 of f
+		//maybe specify that mol contains no C=O bonds
+		//maybe specify mol is neutral
+} store in "AromaticMols.txt"

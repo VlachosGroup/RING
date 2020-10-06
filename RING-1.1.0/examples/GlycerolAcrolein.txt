@@ -1,0 +1,358 @@
+input reactant "OCC(O)CO"
+input reactant "[H+]"
+input reactant "[{HTA}H]"
+input reactant "[{HTA}+]"
+input reactant "O"
+
+
+//definition of a characteristic called primaryCarbenium
+
+define characteristic primaryCarbenium on mol
+{ 
+  fragment a{
+	C+ labeled 1 {! connected to >1 heavy atom}
+	}
+	
+  mol contains a
+}
+
+group CdoubleC (carb1,carb2)
+{
+	C labeled carb1
+	C labeled carb2 double bond to carb1}
+
+define composite atom HTA //Hydrogen Transfer Agent
+
+
+//global constraints specification
+global constraints on  Molecule
+{
+	//declaration of a fragment named 'a'
+	fragment a
+	{
+		C+ labeled 1
+		C labeled 2 double bond to 1
+	}
+	//molecule does not contain C+=C
+	! Molecule contains a
+	
+	Molecule.size between 1 and 8
+	
+	
+	Molecule.charge between 0 and 1
+	
+	fragment b
+	{
+		C labeled c1
+		C labeled c2 double bond to c1
+		X labeled x1 double bond to c2
+	}
+	(! Molecule contains >= 1 of b) //no consecutive double bonds ! 
+	
+	fragment c 
+	{
+		C labeled c1 {connected to >1 O with single bond}
+	}
+	fragment d 
+	{
+		C+ labeled c1 {connected to >1 O with single bond}
+	}
+	
+	(! Molecule contains >=1 of c) 
+	! Molecule contains >=1 of d
+	
+	
+}
+
+
+//Protonation of an alcohol group
+rule oxygenprot{
+neutral reactant r1{
+	C labeled c1
+	O labeled o1 single bond to c1  // will also protonate ethers, if any! 
+}
+
+positive reactant proton{
+	H+ labeled h1
+}
+
+constraints {
+		r1.size between 1 and 10
+}
+
+form bond (o1, h1)
+modify atomtype (o1, O+)
+modify atomtype (h1, H)
+}
+
+//Deprotonation of an alcohol group
+rule alcoholdeprot{
+positive reactant r1{
+	O+ labeled o1
+	H labeled h1 single bond to o1
+}
+break bond (o1,h1)
+modify atomtype(o1,O)
+modify atomtype (h1,H+)
+}
+//Dehydration of oxonium species to form carbenium ion
+
+rule dehydration{
+reactant r1 {
+	C labeled c1 
+	O+ labeled o1 single bond to c1
+}
+constraints {
+	r1.charge = 1
+	r1.size <10
+}
+break bond (c1, o1)
+modify atomtype (c1, C+)
+modify atomtype (o1,O)
+} 
+
+//Deprotonation of carbenium to form C=C
+rule CarbeniumdeProt{
+positive reactant r1 {
+	C+ labeled c1
+	C labeled c2 single bond to c1 {!connected to >=1 O with double bond}
+	H labeled h1 single bond to c2}
+constraints{ r1.size < 10}
+break bond (c2, h1)
+increase bond order (c1, c2)
+modify atomtype (c1, C)
+modify atomtype (h1, H+)
+
+}
+
+//Adsorption of C=C (reverse of the previous step)
+
+rule CdoubleCProtonation{
+reactant r1 {
+	C labeled c1
+	C labeled c2 double bond to c1
+} 
+
+positive reactant r2{
+	H+ labeled h1}
+	
+constraints {r1.charge = 0 && r1.size <15}
+
+form bond (c1, h1)
+decrease bond order (c1,c2)
+modify atomtype (c2,C+)
+modify atomtype (h1, H)
+}
+
+//Protonation of the carbonyl group
+rule CarbonylProt{
+neutral reactant r1{
+	C labeled c1 {! connected to >=1 O with single bond}
+	O labeled o1 double bond to c1}
+positive reactant r2{H+ labeled h1}
+constraints {r1.size < 10 && r1 is oxygenate}
+form bond (o1,h1)
+decrease bond order (c1,o1)
+modify atomtype (c1, C+)
+modify atomtype (h1, H)
+}
+
+//Deprotonation to form Carbonyl group
+rule CarbonylDeprot{
+reactant r1 {
+	C+ labeled c1
+	O labeled o1 single bond to c1
+	H labeled h1 single bond to o1
+}
+constraints{
+	r1.charge =1 && r1.size <10 && r1 is oxygenate
+}
+break bond (o1,h1)
+increase bond order (c1, o1)
+modify atomtype (c1,C)
+modify atomtype (h1, H+)
+}
+
+//1,2 Hydride shifts
+
+rule Hshift {
+positive reactant r1 {
+	C+ labeled c1 
+	C labeled c2 single bond to c1
+	H labeled h1 single bond to c2
+	}
+constraints {r1.size < 10}
+
+break bond (h1,c2)
+form bond (c1,h1)
+modify atomtype (c1,C)
+modify atomtype (c2, C+)
+}
+
+//Decarbonylation step
+rule deCarbonylation{
+positive linear reactant r1{
+	C labeled  c1
+	C+ labeled c2 single bond to c1
+	O labeled o1 double bond to c2}
+constraints {r1.size <10}
+break bond (c1,c2)
+modify atomtype (c1,C+)
+modify atomtype (c2,C:)
+}
+
+//rule Hydride transfer from {HTA]H
+rule HydrideTransfer1{
+positive linear reactant r1{
+	C+ labeled c1 }
+neutral reactant r2{
+	HTA labeled t1
+	H labeled h1 single bond to t1}
+//constraints {! r1 contains >=1 of group CdoubleC}
+modify atomtype (c1,C)
+break bond (t1,h1)
+form bond (h1,c1)
+modify atomtype (t1,HTA+)
+}
+
+//rule Hydride transfer from linear molecule to {HTA}+
+
+rule HydrideTransfer2Linear{
+positive reactant r1{
+	HTA+ labeled t1}
+neutral linear reactant r2{
+	C labeled c1 {!connected to >=1 group CdoubleC}
+	H labeled h1 single bond to c1}
+constraints {
+	r2.size <10
+	//(! r2 contains group CdoubleC && r2.size >1)||(r2 contains group CdoubleC && r2.size >3)
+}
+
+break bond (c1,h1)
+form bond (t1, h1)
+modify atomtype (t1, HTA)
+modify atomtype (c1, C+)
+}
+
+//rule Hydride transfer from cyclic molecule to {HTA}+
+
+rule HydrideTransfer3Cyclic{
+positive reactant r1{
+	HTA+ labeled t1}
+neutral cyclic reactant r2{
+	C labeled c1
+	H labeled h1 single bond to c1}
+constraints {r2.size <10}
+break bond (c1,h1)
+form bond (t1, h1)
+modify atomtype (t1, HTA)
+modify atomtype (c1, C+)
+}
+
+// Oligomerization of carbenium ion with an olefin
+rule Oligomerization{
+positive linear reactant r1{
+	C+ labeled c1
+}
+neutral reactant r2 group CdoubleC(carb1=>c2,carb2=>c3)
+constraints {r1.size + r2.size <10}
+form bond (c1, c2)
+decrease bond order (c2,c3)
+modify atomtype (c3,C+)
+modify atomtype (c1,C)
+}
+
+// beta scission of a carbenium ion (reverse of oligomerization)
+rule betaScission{
+positive reactant r1{
+	C+ labeled c1
+	C labeled c2 single bond to c1
+	C labeled c3 single bond to c2}
+constraints {r1.size <10}
+break bond (c2,c3)
+increase bond order (c1,c2)
+modify atomtype (c1,C)
+modify atomtype (c3,C+)
+}
+
+// cyclization reaction
+rule cyclization{
+positive linear reactant r1{
+	nonringatom C+ labeled c1 {connected to >=1 C with single bond}
+}
+positive linear reactant r2{
+	C labeled c2
+	C labeled c3 double bond to c2}
+constraints {r1.size <9}
+form bond (c1,c2)
+decrease bond order (c2,c3)
+modify atomtype (c1, C)
+modify atomtype (c3, C+)
+product constraints on prodMol{
+	prodMol.minringsize >=5 && prodMol.maxringsize <7}
+only intramolecular reaction//this reaction can happen ONLY as an intramolecular cyclization reaction! note that this is main difference between 
+							 // this rule and the oligomerization rule. 
+}
+
+// Hydration reaction
+rule hydration{
+positive reactant r1{
+	C+ labeled c1
+}
+neutral reactant water{
+	O labeled o1 
+}
+constraints{r1.size <10 && water.size <2}
+form bond (c1,o1)
+modify atomtype (c1, C)
+modify atomtype (o1,O+)
+}
+
+
+find pathways to mol{
+mol is "C=CC=O"
+	} constraints {
+	maximum length 10
+	eliminate similar pathways
+	} store in "acroleinTesting10NoConst.txt"
+
+find pathways to mol{
+mol is "C=CC=O"
+	} constraints {
+	maximum length 10
+	contains < 1 rule Oligomerization
+	contains <=1 rule Hshift
+	eliminate similar pathways
+	} store in "acroleinTesting10WithConst.txt"
+
+find pathways to mol{
+mol is "C=CC=O"
+	} constraints {
+	maximum length 8
+	eliminate similar pathways
+	} store in "acroleinTesting8NoConst.txt"
+
+find pathways to mol{
+mol is "C=CC=O"
+	} constraints {
+	maximum length 8
+	contains < 1 rule Oligomerization
+	contains <=1 rule Hshift
+	eliminate similar pathways
+	} store in "acroleinTesting8WithConst.txt"
+	
+find pathways to mol{
+mol is "C=CC=O"
+	} constraints {
+	maximum length 12
+	eliminate similar pathways
+	} store in "acroleinTesting12NoConst.txt"
+
+find pathways to mol{
+mol is "C=CC=O"
+	} constraints {
+	maximum length 12
+	contains < 1 rule Oligomerization
+	contains <=1 rule Hshift
+	eliminate similar pathways
+	} store in "acroleinTesting12WithConst.txt"
